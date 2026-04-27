@@ -13,7 +13,7 @@ export default async function HomePage() {
   const promotions = await getActivePromotions();
 
   return (
-    <main className="min-h-dvh" style={{ background: 'var(--color-bg)' }}>
+    <main className="min-h-dvh" style={{ background: '#000000' }}>
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center min-h-[80dvh] px-6 text-center overflow-hidden">
         {/* Gradient background */}
@@ -21,7 +21,7 @@ export default async function HomePage() {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,169,110,0.15) 0%, transparent 70%)',
+              'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(188, 25, 235, 0.2) 0%, transparent 70%)',
           }}
         />
 
@@ -31,7 +31,7 @@ export default async function HomePage() {
             <span className="text-4xl">✂️</span>
             <span
               className="text-2xl font-bold tracking-widest uppercase"
-              style={{ color: 'var(--color-primary)' }}
+              style={{ color: '#bc19eb' }}
             >
               Barbería
             </span>
@@ -39,14 +39,14 @@ export default async function HomePage() {
 
           <h1
             className="text-4xl font-bold leading-tight mb-4"
-            style={{ color: 'var(--color-text)' }}
+            style={{ color: '#ffffff' }}
           >
             Tu look,
             <br />
-            <span style={{ color: 'var(--color-primary)' }}>tu turno.</span>
+            <span style={{ color: '#bc19eb' }}>tu turno.</span>
           </h1>
 
-          <p className="text-base mb-10" style={{ color: 'var(--color-text-muted)' }}>
+          <p className="text-base mb-10" style={{ color: '#aaaaaa' }}>
             Reservá en segundos, sin llamadas. Elegí el servicio, el día y la hora que más te
             convenga.
           </p>
@@ -55,8 +55,8 @@ export default async function HomePage() {
             href="/book"
             className="block w-full py-4 rounded-xl text-center font-semibold text-base transition-all active:scale-95"
             style={{
-              background: 'var(--color-primary)',
-              color: '#0a0a0a',
+              background: '#bc19eb',
+              color: '#ffffff',
             }}
           >
             Reservar turno
@@ -66,8 +66,8 @@ export default async function HomePage() {
             href="/promotions"
             className="block w-full py-3 rounded-xl text-center font-medium text-sm mt-3 transition-all"
             style={{
-              color: 'var(--color-primary)',
-              border: '1px solid var(--color-primary)',
+              color: '#bc19eb',
+              border: '1px solid #bc19eb',
             }}
           >
             Ver promociones
@@ -78,8 +78,8 @@ export default async function HomePage() {
       {/* Promotions strip */}
       {promotions.length > 0 && (
         <section className="px-6 pb-12">
-          <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-text)' }}>
-            🔥 Promociones activas
+          <h2 className="text-lg font-semibold mb-4" style={{ color: '#ffffff' }}>
+            ⭐ Promociones activas
           </h2>
           <div className="flex flex-col gap-3">
             {promotions.map((promo: any) => (
@@ -87,20 +87,20 @@ export default async function HomePage() {
                 key={promo.id}
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
+                  background: '#1a1a1a',
+                  border: '1px solid #333333',
                 }}
               >
-                <p className="font-semibold" style={{ color: 'var(--color-primary)' }}>
+                <p className="font-semibold" style={{ color: '#bc19eb' }}>
                   {promo.title}
                 </p>
-                <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                <p className="text-sm mt-1" style={{ color: '#aaaaaa' }}>
                   {promo.description}
                 </p>
                 {promo.discountPercent && (
                   <span
                     className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold"
-                    style={{ background: 'rgba(201,169,110,0.15)', color: 'var(--color-primary)' }}
+                    style={{ background: '#bc19eb', color: '#ffffff' }}
                   >
                     {promo.discountPercent}% OFF
                   </span>
@@ -115,14 +115,14 @@ export default async function HomePage() {
       <footer
         className="border-t py-6 px-6 text-center text-sm"
         style={{
-          borderColor: 'var(--color-border)',
-          color: 'var(--color-text-muted)',
+          borderColor: '#333333',
+          color: '#aaaaaa',
         }}
       >
         <Link
           href="/admin"
           className="underline underline-offset-2"
-          style={{ color: 'var(--color-text-muted)' }}
+          style={{ color: '#aaaaaa' }}
         >
           Panel de administración
         </Link>

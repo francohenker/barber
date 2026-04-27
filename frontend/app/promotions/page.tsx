@@ -57,18 +57,18 @@ export default async function PromotionsPage() {
               <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
                 {promo.description}
               </p>
-              {promo.discountPercent && (
+               {promo.discountPercent && (
                 <span
                   className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: 'rgba(201,169,110,0.15)', color: 'var(--color-primary)' }}
+                  style={{ background: 'rgba(188, 25, 235, 0.15)', color: 'var(--color-primary)' }}
                 >
                   {promo.discountPercent}% OFF
                 </span>
               )}
-              {promo.discountAmount && (
+               {promo.discountAmount && (
                 <span
                   className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-bold"
-                  style={{ background: 'rgba(201,169,110,0.15)', color: 'var(--color-primary)' }}
+                  style={{ background: 'rgba(188, 25, 235, 0.15)', color: 'var(--color-primary)' }}
                 >
                   ${promo.discountAmount} de descuento
                 </span>

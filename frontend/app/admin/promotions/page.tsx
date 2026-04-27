@@ -82,11 +82,11 @@ export default function PromotionsAdminPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>🏷️ Promociones</h1>
         {isAdmin && (
-          <button onClick={() => setShowForm(!showForm)}
-            className="px-4 py-2 rounded-xl text-sm font-semibold"
-            style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
-            {showForm ? 'Cancelar' : '+ Nueva'}
-          </button>
+            <button onClick={() => setShowForm(!showForm)}
+              className="px-4 py-2 rounded-xl text-sm font-semibold"
+              style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
+              {showForm ? 'Cancelar' : '+ Nueva'}
+            </button>
         )}
       </div>
 
@@ -140,7 +140,7 @@ export default function PromotionsAdminPage() {
 
             <button onClick={handleSave} disabled={saving || !form.title || !form.description}
               className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-40"
-              style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
+              style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
               {saving ? 'Guardando...' : 'Guardar promoción'}
             </button>
           </div>
@@ -180,7 +180,7 @@ export default function PromotionsAdminPage() {
                     <button onClick={() => handleSendNow(promo.id)}
                       disabled={sendingId === promo.id}
                       className="flex-1 py-2 rounded-xl text-xs font-semibold"
-                      style={{ background: 'rgba(201,169,110,0.15)', color: 'var(--color-primary)' }}>
+                      style={{ background: 'rgba(188, 25, 235, 0.15)', color: 'var(--color-primary)' }}>
                       {sendingId === promo.id ? 'Enviando...' : '📤 Enviar ahora'}
                     </button>
                   )}

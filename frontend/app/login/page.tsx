@@ -114,8 +114,8 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className="w-full py-4 rounded-2xl font-semibold text-base disabled:opacity-40 transition-all active:scale-95"
-            style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}
-          >
+            style={{ background: 'var(--color-primary)', color: '#ffffff' }}
+           >
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
         </form>

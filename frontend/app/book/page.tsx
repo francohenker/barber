@@ -65,40 +65,40 @@ export default function BookPage() {
   if (success) {
     return (
       <main className="min-h-dvh flex flex-col items-center justify-center px-6 text-center"
-        style={{ background: 'var(--color-bg)' }}>
+        style={{ background: '#000000' }}>
         <div className="text-5xl mb-4">🎉</div>
-        <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text)' }}>¡Turno reservado!</h1>
-        <p className="text-sm mb-8" style={{ color: 'var(--color-text-muted)' }}>
+        <h1 className="text-2xl font-bold mb-2" style={{ color: '#ffffff' }}>¡Turno reservado!</h1>
+        <p className="text-sm mb-8" style={{ color: '#ffffff' }}>
           {selectedService?.name} el {selectedDate} a las {selectedSlot}
         </p>
-        <Link href="/" className="block w-full max-w-xs py-4 rounded-xl text-center font-semibold"
-          style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
-          Volver al inicio
-        </Link>
+          <Link href="/" className="block w-full max-w-xs py-4 rounded-xl text-center font-semibold"
+            style={{ background: '#bc19eb', color: '#ffffff' }}>
+            Volver al inicio
+          </Link>
       </main>
     );
   }
 
   return (
-    <main className="min-h-dvh px-6 py-8 max-w-sm mx-auto" style={{ background: 'var(--color-bg)' }}>
+    <main className="min-h-dvh px-6 py-8 max-w-sm mx-auto" style={{ background: '#000000' }}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <Link href="/" style={{ color: 'var(--color-text-muted)' }}>←</Link>
-        <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>Reservar turno</h1>
+        <Link href="/" style={{ color: '#ffffff' }}>←</Link>
+        <h1 className="text-xl font-bold" style={{ color: '#ffffff' }}>Reservar turno</h1>
       </div>
 
       {/* Step indicator */}
       <div className="flex gap-2 mb-8">
         {[1, 2, 3, 4].map((s) => (
           <div key={s} className="h-1 flex-1 rounded-full transition-all"
-            style={{ background: s <= step ? 'var(--color-primary)' : 'var(--color-border)' }} />
+            style={{ background: s <= step ? '#bc19eb' : '#e0e0e0' }} />
         ))}
       </div>
 
       {/* Step 1: Choose service */}
       {step === 1 && (
         <div>
-          <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--color-text-muted)' }}>
+          <h2 className="text-base font-semibold mb-4" style={{ color: '#ffffff' }}>
             1. Elegí el servicio
           </h2>
           <div className="flex flex-col gap-3">
@@ -106,13 +106,14 @@ export default function BookPage() {
               <button key={svc.id} onClick={() => { setSelectedService(svc); setStep(2); }}
                 className="w-full p-4 rounded-2xl text-left transition-all active:scale-95"
                 style={{
-                  background: selectedService?.id === svc.id ? 'rgba(201,169,110,0.15)' : 'var(--color-surface)',
-                  border: `1px solid ${selectedService?.id === svc.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                  background: selectedService?.id === svc.id ? '#bc19eb' : '#1a1a1a',
+                  border: `2px solid ${selectedService?.id === svc.id ? '#bc19eb' : '#333333'}`,
+                  color: selectedService?.id === svc.id ? '#ffffff' : '#ffffff',
                 }}>
-                <p className="font-semibold" style={{ color: 'var(--color-text)' }}>{svc.name}</p>
+                <p className="font-semibold">{svc.name}</p>
                 <div className="flex gap-4 mt-1">
-                  <span className="text-sm" style={{ color: 'var(--color-primary)' }}>${svc.price}</span>
-                  <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{svc.duration} min</span>
+                  <span className="text-sm" style={{ color: selectedService?.id === svc.id ? '#ffffff' : '#bc19eb' }}>${svc.price}</span>
+                  <span className="text-sm" style={{ color: selectedService?.id === svc.id ? '#ffffff' : '#aaaaaa' }}>{svc.duration} min</span>
                 </div>
               </button>
             ))}
@@ -123,7 +124,7 @@ export default function BookPage() {
       {/* Step 2: Choose date */}
       {step === 2 && (
         <div>
-          <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--color-text-muted)' }}>
+          <h2 className="text-base font-semibold mb-4" style={{ color: '#ffffff' }}>
             2. Elegí la fecha
           </h2>
           <input
@@ -133,22 +134,22 @@ export default function BookPage() {
             onChange={(e) => setSelectedDate(e.target.value)}
             className="w-full p-4 rounded-2xl text-base outline-none"
             style={{
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text)',
+              background: '#1a1a1a',
+              border: '1px solid #333333',
+              color: '#ffffff',
             }}
           />
           {barbers.length > 0 && (
             <div className="mt-4">
-              <p className="text-sm mb-2" style={{ color: 'var(--color-text-muted)' }}>Barbero</p>
-              <div className="flex flex-col gap-2">
+              <p className="text-sm mb-2" style={{ color: '#ffffff' }}>Barbero</p>
+                <div className="flex flex-col gap-2">
                 {barbers.map((b: any) => (
                   <button key={b.id} onClick={() => setSelectedBarber(b)}
                     className="w-full p-3 rounded-xl text-left"
                     style={{
-                      background: selectedBarber?.id === b.id ? 'rgba(201,169,110,0.15)' : 'var(--color-surface)',
-                      border: `1px solid ${selectedBarber?.id === b.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                      color: 'var(--color-text)',
+                      background: selectedBarber?.id === b.id ? '#bc19eb' : '#1a1a1a',
+                      border: `2px solid ${selectedBarber?.id === b.id ? '#bc19eb' : '#333333'}`,
+                      color: selectedBarber?.id === b.id ? '#ffffff' : '#ffffff',
                     }}>
                     {b.name}
                   </button>
@@ -156,14 +157,14 @@ export default function BookPage() {
               </div>
             </div>
           )}
-          <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 mt-6">
             <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl font-medium"
-              style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
+              style={{ background: '#1a1a1a', color: '#ffffff', border: '1px solid #333333' }}>
               Atrás
             </button>
             <button onClick={() => setStep(3)} disabled={!selectedDate}
               className="flex-1 py-3 rounded-xl font-semibold disabled:opacity-40"
-              style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
+              style={{ background: '#bc19eb', color: '#ffffff' }}>
               Siguiente
             </button>
           </div>
@@ -173,11 +174,11 @@ export default function BookPage() {
       {/* Step 3: Choose time slot */}
       {step === 3 && (
         <div>
-          <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--color-text-muted)' }}>
+          <h2 className="text-base font-semibold mb-4" style={{ color: '#ffffff' }}>
             3. Elegí el horario
           </h2>
           {slots.length === 0 ? (
-            <p className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+            <p className="text-center py-8" style={{ color: '#aaaaaa' }}>
               No hay horarios disponibles para ese día.
             </p>
           ) : (
@@ -185,24 +186,24 @@ export default function BookPage() {
               {slots.map((slot) => (
                 <button key={slot} onClick={() => setSelectedSlot(slot)}
                   className="py-3 rounded-xl text-sm font-medium transition-all active:scale-95"
-                  style={{
-                    background: selectedSlot === slot ? 'var(--color-primary)' : 'var(--color-surface)',
-                    color: selectedSlot === slot ? '#0a0a0a' : 'var(--color-text)',
-                    border: `1px solid ${selectedSlot === slot ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                   style={{
+                    background: selectedSlot === slot ? '#bc19eb' : '#1a1a1a',
+                    color: selectedSlot === slot ? '#ffffff' : '#ffffff',
+                    border: `2px solid ${selectedSlot === slot ? '#bc19eb' : '#333333'}`,
                   }}>
                   {slot}
                 </button>
               ))}
             </div>
           )}
-          <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 mt-6">
             <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl font-medium"
-              style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
+              style={{ background: '#1a1a1a', color: '#ffffff', border: '1px solid #333333' }}>
               Atrás
             </button>
             <button onClick={() => setStep(4)} disabled={!selectedSlot}
               className="flex-1 py-3 rounded-xl font-semibold disabled:opacity-40"
-              style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
+              style={{ background: '#bc19eb', color: '#ffffff' }}>
               Siguiente
             </button>
           </div>
@@ -212,16 +213,16 @@ export default function BookPage() {
       {/* Step 4: Personal data + confirm */}
       {step === 4 && (
         <div>
-          <h2 className="text-base font-semibold mb-4" style={{ color: 'var(--color-text-muted)' }}>
+          <h2 className="text-base font-semibold mb-4" style={{ color: '#ffffff' }}>
             4. Tus datos
           </h2>
 
           {/* Summary */}
           <div className="p-4 rounded-2xl mb-6"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Resumen</p>
-            <p className="font-semibold mt-1" style={{ color: 'var(--color-text)' }}>{selectedService?.name}</p>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+            style={{ background: '#1a1a1a', border: '1px solid #333333' }}>
+            <p className="text-sm" style={{ color: '#aaaaaa' }}>Resumen</p>
+            <p className="font-semibold mt-1" style={{ color: '#ffffff' }}>{selectedService?.name}</p>
+            <p className="text-sm mt-0.5" style={{ color: '#aaaaaa' }}>
               {selectedDate} a las {selectedSlot}
             </p>
           </div>
@@ -233,7 +234,7 @@ export default function BookPage() {
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
               className="w-full p-4 rounded-2xl text-base outline-none"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+              style={{ background: '#1a1a1a', border: '1px solid #333333', color: '#ffffff' }}
             />
             <input
               type="tel"
@@ -241,27 +242,27 @@ export default function BookPage() {
               value={clientPhone}
               onChange={(e) => setClientPhone(e.target.value)}
               className="w-full p-4 rounded-2xl text-base outline-none"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+              style={{ background: '#1a1a1a', border: '1px solid #333333', color: '#ffffff' }}
             />
           </div>
 
           {error && (
             <p className="text-sm mb-4 p-3 rounded-xl"
-              style={{ background: 'rgba(224,92,92,0.15)', color: 'var(--color-error)' }}>
+              style={{ background: '#3a1a1a', color: '#ff6b6b' }}>
               {error}
             </p>
           )}
 
-          <div className="flex gap-3">
+            <div className="flex gap-3">
             <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-medium"
-              style={{ background: 'var(--color-surface)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
+              style={{ background: '#1a1a1a', color: '#ffffff', border: '1px solid #333333' }}>
               Atrás
             </button>
             <button
               onClick={handleBook}
               disabled={loading || !clientName || !clientPhone}
               className="flex-1 py-3 rounded-xl font-semibold disabled:opacity-40"
-              style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
+              style={{ background: '#bc19eb', color: '#ffffff' }}>
               {loading ? 'Reservando...' : 'Confirmar'}
             </button>
           </div>

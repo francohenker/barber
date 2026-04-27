@@ -48,12 +48,12 @@ export default function WhatsappAdminPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {logs.map((log) => (
-            <div key={log.id}
-              className={`p-4 rounded-2xl ${log.direction === 'IN' ? 'mr-6' : 'ml-6'}`}
-              style={{
-                background: log.direction === 'IN' ? 'var(--color-surface)' : 'rgba(201,169,110,0.1)',
-                border: `1px solid ${log.direction === 'IN' ? 'var(--color-border)' : 'rgba(201,169,110,0.3)'}`,
-              }}>
+          <div key={log.id}
+            className={`p-4 rounded-2xl ${log.direction === 'IN' ? 'mr-6' : 'ml-6'}`}
+            style={{
+              background: log.direction === 'IN' ? 'var(--color-surface)' : 'rgba(188, 25, 235, 0.1)',
+              border: `1px solid ${log.direction === 'IN' ? 'var(--color-border)' : 'rgba(188, 25, 235, 0.3)'}`,
+            }}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-medium"
                   style={{ color: log.direction === 'IN' ? 'var(--color-text-muted)' : 'var(--color-primary)' }}>

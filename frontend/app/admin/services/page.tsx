@@ -74,7 +74,7 @@ export default function ServicesAdminPage() {
         {isAdmin && (
           <button onClick={() => { setForm(empty); setEditId(null); setShowForm(!showForm); }}
             className="px-4 py-2 rounded-xl text-sm font-semibold"
-            style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
+            style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
             {showForm ? 'Cancelar' : '+ Nuevo'}
           </button>
         )}
@@ -111,7 +111,7 @@ export default function ServicesAdminPage() {
             </div>
             <button onClick={handleSave} disabled={saving || !form.name || !form.price || !form.duration}
               className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-40"
-              style={{ background: 'var(--color-primary)', color: '#0a0a0a' }}>
+              style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
               {saving ? 'Guardando...' : editId ? 'Actualizar' : 'Crear servicio'}
             </button>
           </div>
@@ -150,7 +150,7 @@ export default function ServicesAdminPage() {
                   <div className="flex gap-2">
                     <button onClick={() => handleEdit(svc)}
                       className="p-2 rounded-lg text-sm"
-                      style={{ background: 'rgba(201,169,110,0.1)', color: 'var(--color-primary)' }}>
+                      style={{ background: 'rgba(188, 25, 235, 0.1)', color: 'var(--color-primary)' }}>
                       ✏️
                     </button>
                     <button onClick={() => handleDelete(svc.id)}

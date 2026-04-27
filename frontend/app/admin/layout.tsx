@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs px-2 py-1 rounded-full"
-            style={{ background: 'rgba(201,169,110,0.15)', color: 'var(--color-primary)' }}>
+            style={{ background: 'rgba(188, 25, 235, 0.15)', color: 'var(--color-primary)' }}>
             {user.role}
           </span>
           <button onClick={() => logout().then(() => router.replace('/login'))}
