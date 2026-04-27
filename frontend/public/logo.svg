@@ -1,0 +1,31 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo transparente (no rect) -->
+
+  <!-- Círculo exterior negro -->
+  <circle cx="150" cy="150" r="140"
+          fill="none"
+          stroke="black"
+          stroke-width="10"/>
+
+  <!-- Anillo púrpura -->
+  <circle cx="150" cy="150" r="125"
+          fill="none"
+          stroke="#bc19eb"
+          stroke-width="6"/>
+
+  <!-- Anillo interior negro -->
+  <circle cx="150" cy="150" r="112"
+          fill="none"
+          stroke="black"
+          stroke-width="4"/>
+
+  <!-- Letra I -->
+  <text x="150" y="190"
+        text-anchor="middle"
+        font-family="Times New Roman, serif"
+        font-size="120"
+        font-weight="bold"
+        fill="black">
+    I
+  </text>
+</svg>
