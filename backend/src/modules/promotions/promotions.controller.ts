@@ -1,5 +1,12 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete, UseGuards,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PromotionsService } from './promotions.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
@@ -42,7 +49,11 @@ export class PromotionsController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  update(@Param('id') id: string, @Body() dto: CreatePromotionDto, @CurrentUser() user: any) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: CreatePromotionDto,
+    @CurrentUser() user: any,
+  ) {
     return this.promotionsService.update(id, dto, user);
   }
 

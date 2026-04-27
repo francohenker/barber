@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull, LessThanOrEqual } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -21,18 +25,24 @@ export class PromotionsService {
 
   async create(dto: CreatePromotionDto, user: User): Promise<Promotion> {
     if (user.role !== Role.ADMIN) {
-      throw new ForbiddenException('Solo los administradores pueden crear promociones');
+      throw new ForbiddenException(
+        'Solo los administradores pueden crear promociones',
+      );
     }
 
-    const status = dto.scheduledSendAt ? PromotionStatus.SCHEDULED : PromotionStatus.DRAFT;
+    const status = dto.scheduledSendAt
+      ? PromotionStatus.SCHEDULED
+      : PromotionStatus.DRAFT;
     const promotion = this.promotionsRepo.create({
       ...dto,
       status,
       createdBy: user,
-      scheduledSendAt: dto.scheduledSendAt ? new Date(dto.scheduledSendAt) : undefined,
+      scheduledSendAt: dto.scheduledSendAt
+        ? new Date(dto.scheduledSendAt)
+        : undefined,
     });
 
-    return this.promotionsRepo.save(promotion) as Promise<Promotion>;
+    return this.promotionsRepo.save(promotion);
   }
 
   async findAll(): Promise<Promotion[]> {
@@ -52,12 +62,18 @@ export class PromotionsService {
     return p;
   }
 
-  async update(id: string, dto: Partial<CreatePromotionDto>, user: User): Promise<Promotion> {
+  async update(
+    id: string,
+    dto: Partial<CreatePromotionDto>,
+    user: User,
+  ): Promise<Promotion> {
     if (user.role !== Role.ADMIN) throw new ForbiddenException();
     await this.findOne(id);
     await this.promotionsRepo.update(id, {
       ...dto,
-      scheduledSendAt: dto.scheduledSendAt ? new Date(dto.scheduledSendAt) : undefined,
+      scheduledSendAt: dto.scheduledSendAt
+        ? new Date(dto.scheduledSendAt)
+        : undefined,
     });
     return this.findOne(id);
   }
@@ -118,7 +134,8 @@ export class PromotionsService {
     } else if (promotion.discountAmount) {
       msg += `\n\n🏷️ *$${promotion.discountAmount} de descuento*`;
     }
-    msg += '\n\n📱 Reservá tu turno en nuestra web o respondiendo este mensaje.';
+    msg +=
+      '\n\n📱 Reservá tu turno en nuestra web o respondiendo este mensaje.';
     return msg;
   }
 }
