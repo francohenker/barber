@@ -13,11 +13,31 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(helmet());
 
+  const frontendUrl =
+    config.get<string>('FRONTEND_URL')?.trim() || 'http://localhost:3000';
+  const allowedOrigins = [
+    frontendUrl,
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://barber-indoor.vercel.app',
+  ].filter((url) => url && url !== 'undefined');
+
+  console.log('🔒 CORS allowed origins:', allowedOrigins);
+
   app.enableCors({
-    origin: config.get<string>('FRONTEND_URL', 'http://localhost:3000'),
+    origin: (origin, callback) => {
+      console.log('📨 CORS request from:', origin);
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log('❌ CORS blocked:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Authorization'],
   });
 
   app.useGlobalPipes(
