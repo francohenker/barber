@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Role } from '../../common/enums/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +19,9 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
-    const exists = await this.usersRepo.findOne({ where: { email: dto.email } });
+    const exists = await this.usersRepo.findOne({
+      where: { email: dto.email },
+    });
     if (exists) throw new ConflictException('El email ya está registrado');
 
     const hash = await bcrypt.hash(dto.password, 10);
@@ -65,8 +68,27 @@ export class UsersService {
     googleId: string,
     avatar?: string,
   ): Promise<User> {
-    await this.usersRepo.update(id, { googleId, ...(avatar ? { avatar } : {}) });
+    await this.usersRepo.update(id, {
+      googleId,
+      ...(avatar ? { avatar } : {}),
+    });
     return this.findOne(id);
+  }
+
+  async createFromGoogle(googleUser: {
+    googleId: string;
+    email: string;
+    name: string;
+    avatar?: string;
+  }): Promise<User> {
+    const user = this.usersRepo.create({
+      email: googleUser.email,
+      name: googleUser.name,
+      googleId: googleUser.googleId,
+      avatar: googleUser.avatar,
+      role: Role.BARBER,
+    });
+    return this.usersRepo.save(user);
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<User> {

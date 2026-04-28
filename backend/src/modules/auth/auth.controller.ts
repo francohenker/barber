@@ -26,7 +26,10 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const tokens = await this.authService.login(dto);
     this.setRefreshCookie(res, tokens.refreshToken);
     return { accessToken: tokens.accessToken };
@@ -40,21 +43,21 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleCallback(
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
     const tokens = await this.authService.googleLogin(req.user as any);
     this.setRefreshCookie(res, tokens.refreshToken);
-    const frontendUrl = this.config.get<string>('FRONTEND_URL', 'http://localhost:3000');
+    const frontendUrl = this.config.get<string>('FRONTEND_URL');
     (res as any).redirect(`${frontendUrl}/admin?token=${tokens.accessToken}`);
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const rt = (req as any).cookies?.['refresh_token'];
-    const user = (req as any).user as any;
+    const user = (req as any).user;
     const tokens = await this.authService.refreshToken(user?.id, rt);
     this.setRefreshCookie(res, tokens.refreshToken);
     return { accessToken: tokens.accessToken };

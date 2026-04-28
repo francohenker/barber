@@ -37,8 +37,10 @@ export class AuthService {
     let user = await this.usersService.findByGoogleId(googleUser.googleId);
 
     if (!user) {
-      // Auto-register if user with this email exists (link account)
-      const existingUser = await this.usersService.findByEmail(googleUser.email);
+      // Try to link to existing account
+      const existingUser = await this.usersService.findByEmail(
+        googleUser.email,
+      );
       if (existingUser) {
         user = await this.usersService.linkGoogleAccount(
           existingUser.id,
@@ -46,9 +48,13 @@ export class AuthService {
           googleUser.avatar,
         );
       } else {
-        throw new ForbiddenException(
-          'No existe una cuenta para este correo. Contactá al administrador.',
-        );
+        // Auto-register new user with Google
+        user = await this.usersService.createFromGoogle({
+          googleId: googleUser.googleId,
+          email: googleUser.email,
+          name: googleUser.name,
+          avatar: googleUser.avatar,
+        });
       }
     }
 
@@ -57,7 +63,8 @@ export class AuthService {
 
   async refreshToken(userId: string, rt: string) {
     const user = await this.usersService.findByIdWithRefreshToken(userId);
-    if (!user || !user.refreshToken) throw new ForbiddenException('Acceso denegado');
+    if (!user || !user.refreshToken)
+      throw new ForbiddenException('Acceso denegado');
 
     const matches = await bcrypt.compare(rt, user.refreshToken);
     if (!matches) throw new ForbiddenException('Acceso denegado');
@@ -74,12 +81,12 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: this.config.get<string>('JWT_SECRET'),
-      expiresIn: this.config.get('JWT_EXPIRES_IN', '15m') as any,
+      expiresIn: this.config.get('JWT_EXPIRES_IN', '15m'),
     });
 
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.config.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.config.get('JWT_REFRESH_EXPIRES_IN', '7d') as any,
+      expiresIn: this.config.get('JWT_REFRESH_EXPIRES_IN', '7d'),
     });
 
     const hashedRt = await bcrypt.hash(refreshToken, 10);
