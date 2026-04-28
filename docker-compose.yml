@@ -1,39 +1,56 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: barberia_db
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: barberia_backend
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-barberia_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-barberia_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-barberia_db}
+      PORT: ${PORT:-3001}
+      NODE_ENV: ${NODE_ENV:-development}
+      DB: ${DB}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN}
+      WHATSAPP_WEBHOOK_SECRET: ${WHATSAPP_WEBHOOK_SECRET}
+      WHATSAPP_API_VERSION: ${WHATSAPP_API_VERSION}
+      FRONTEND_URL: ${FRONTEND_URL}
     ports:
-      - '5432:5432'
+      - '${PORT:-3001}:${PORT:-3001}'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-barberia_user} -d ${POSTGRES_DB:-barberia_db}']
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ./backend/src:/app/src
+      - ./backend/dist:/app/dist
+    command: npm run start:dev
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: barberia_pgadmin
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: barberia_frontend
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@barberia.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
     ports:
-      - '5050:80'
+      - '3000:3000'
     depends_on:
-      postgres:
-        condition: service_healthy
+      - backend
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - ./frontend:/app
+      - ./frontend/node_modules:/app/node_modules
+    command: npm run dev
 
-volumes:
-  postgres_data:
-  pgadmin_data:
+volumes: {}
