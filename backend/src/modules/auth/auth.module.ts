@@ -8,11 +8,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [
-    PassportModule,
-    JwtModule.register({}),
-    UsersModule,
-  ],
+  imports: [PassportModule, JwtModule.register({}), UsersModule],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, GoogleStrategy],
   exports: [AuthService],

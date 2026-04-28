@@ -26,8 +26,7 @@ export default function LoginPage() {
     }
   };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-  const googleAuthUrl = apiUrl.replace('/api', '') + '/api/auth/google';
+  const googleAuthUrl = process.env.NEXT_PUBLIC_GOOGLE_AUTH_URL || 'http://localhost:3001/api/auth/google';
 
   return (
     <main
