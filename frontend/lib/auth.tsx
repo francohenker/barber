@@ -9,11 +9,12 @@ export function useAuth() {
   const isLoading = useAuthStore((s) => s.isLoading);
   const login = useAuthStore((s) => s.login);
   const logout = useAuthStore((s) => s.logout);
+  const handleOAuthToken = useAuthStore((s) => s.handleOAuthToken);
   const initialize = useAuthStore((s) => s.initialize);
 
   useEffect(() => {
     initialize();
   }, [initialize]);
 
-  return { user, token, login, logout, isLoading };
+  return { user, token, login, logout, handleOAuthToken, isLoading };
 }

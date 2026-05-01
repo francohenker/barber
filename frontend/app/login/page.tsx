@@ -1,16 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, handleOAuthToken } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      handleOAuthToken(token)
+        .then(() => router.replace('/admin'))
+        .catch(() => {
+          setError('No se pudo completar el inicio de sesion con Google');
+          window.history.replaceState({}, '', '/login');
+        });
+    }
+  }, [handleOAuthToken, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +33,7 @@ export default function LoginPage() {
       await login(email, password);
       router.push('/admin');
     } catch (err: any) {
-      setError(err.message || 'Credenciales inválidas');
+      setError(err.message || 'Credenciales invalidas');
     } finally {
       setLoading(false);
     }
@@ -38,10 +51,10 @@ export default function LoginPage() {
         <div className="text-center mb-10">
           <span className="text-5xl">✂️</span>
           <h1 className="text-2xl font-bold mt-3" style={{ color: 'var(--color-text)' }}>
-            Panel de administración
+            Panel de administracion
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            Ingresá para gestionar turnos y promociones
+            Ingresa para gestionar turnos y promociones
           </p>
         </div>
 

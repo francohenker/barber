@@ -14,8 +14,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
-  setUser: (user: AuthUser | null) => void;
-  setToken: (token: string | null) => void;
+  handleOAuthToken: (token: string) => Promise<void>;
 }
 
 const STORAGE_KEY = 'access_token';
@@ -46,6 +45,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
+  handleOAuthToken: async (token: string) => {
+    localStorage.setItem(STORAGE_KEY, token);
+    const user = await api.me(token);
+    set({ user, token, isLoading: false });
+  },
+
   login: async (email: string, password: string) => {
     const { accessToken } = await api.login(email, password);
     localStorage.setItem(STORAGE_KEY, accessToken);
@@ -59,7 +64,4 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem(STORAGE_KEY);
     set({ user: null, token: null });
   },
-
-  setUser: (user) => set({ user }),
-  setToken: (token) => set({ token }),
 }));
