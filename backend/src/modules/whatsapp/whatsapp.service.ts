@@ -4,6 +4,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WhatsappWebhookLog } from './entities/whatsapp-webhook-log.entity';
 import { MessageDirection } from '../../common/enums/message-direction.enum';
+import { WorkSchedulesService } from '../work-schedules/work-schedules.service';
+import { UsersService } from '../users/users.service';
+import { DayOfWeek } from '../work-schedules/entities/work-schedule.entity';
+
+const DAY_NAMES: Record<number, string> = {
+  0: 'Domingo',
+  1: 'Lunes',
+  2: 'Martes',
+  3: 'Miercoles',
+  4: 'Jueves',
+  5: 'Viernes',
+  6: 'Sabado',
+};
 
 @Injectable()
 export class WhatsappService {
@@ -17,6 +30,8 @@ export class WhatsappService {
     private readonly config: ConfigService,
     @InjectRepository(WhatsappWebhookLog)
     private readonly logsRepo: Repository<WhatsappWebhookLog>,
+    private readonly workSchedulesService: WorkSchedulesService,
+    private readonly usersService: UsersService,
   ) {
     this.apiVersion = config.get<string>('WHATSAPP_API_VERSION', 'v20.0');
     this.phoneNumberId = config.get<string>('WHATSAPP_PHONE_NUMBER_ID', '');
@@ -24,7 +39,6 @@ export class WhatsappService {
     this.apiUrl = `https://graph.facebook.com/${this.apiVersion}/${this.phoneNumberId}/messages`;
   }
 
-  /** Send a plain text message via Meta WhatsApp Cloud API */
   async sendTextMessage(to: string, text: string): Promise<void> {
     const phone = this.normalizePhone(to);
     try {
@@ -42,7 +56,7 @@ export class WhatsappService {
         }),
       });
 
-      const data = await response.json() as any;
+      const data = await response.json();
       const waMessageId = data?.messages?.[0]?.id;
 
       await this.logMessage(phone, text, MessageDirection.OUT, waMessageId);
@@ -51,7 +65,6 @@ export class WhatsappService {
     }
   }
 
-  /** Process incoming webhook payload from Meta */
   async processWebhook(body: any): Promise<void> {
     const entry = body?.entry?.[0];
     const changes = entry?.changes?.[0];
@@ -69,11 +82,14 @@ export class WhatsappService {
     }
   }
 
-  /** Basic intent handler */
   private async handleIntent(phone: string, text: string): Promise<void> {
     const lowerText = text.toLowerCase().trim();
 
-    if (lowerText.includes('turno') || lowerText.includes('reservar') || lowerText.includes('sacar')) {
+    if (
+      lowerText.includes('turno') ||
+      lowerText.includes('reservar') ||
+      lowerText.includes('sacar')
+    ) {
       await this.sendTextMessage(
         phone,
         '✂️ ¡Hola! Para reservar tu turno ingresá a nuestra web:\n👉 http://localhost:3000/book\n\nO escribinos "¿Cuándo tienen disponible?" para consultar horarios.',
@@ -83,17 +99,68 @@ export class WhatsappService {
         phone,
         'Para cancelar tu turno, por favor contactá directamente con la barbería. 📞',
       );
-    } else if (lowerText.includes('horario') || lowerText.includes('disponible')) {
-      await this.sendTextMessage(
-        phone,
-        '⏰ Nuestro horario de atención es:\n*Lunes a Viernes*: 9:00 a 19:00\n*Sábados*: 9:00 a 14:00\n\nReservá tu turno en: http://localhost:3000/book',
-      );
+    } else if (
+      lowerText.includes('horario') ||
+      lowerText.includes('disponible')
+    ) {
+      const hours = await this.buildHoursMessage();
+      await this.sendTextMessage(phone, hours);
     } else {
       await this.sendTextMessage(
         phone,
         '✂️ ¡Hola! Soy el asistente de la barbería. Puedo ayudarte a:\n\n• *Reservar un turno*\n• *Consultar horarios*\n• *Cancelar un turno*\n\n¿En qué te puedo ayudar?',
       );
     }
+  }
+
+  private async buildHoursMessage(): Promise<string> {
+    const barbers = await this.usersService.findAllBarbers();
+    if (barbers.length === 0) {
+      return '⏰ No hay horarios configurados aún.\n\nReservá tu turno en: http://localhost:3000/book';
+    }
+
+    // Use first barber's schedule (or could aggregate)
+    const barber = barbers[0];
+    const schedules = await this.workSchedulesService.findByUserId(barber.id);
+
+    if (schedules.length === 0) {
+      return '⏰ No hay horarios configurados aún.\n\nReservá tu turno en: http://localhost:3000/book';
+    }
+
+    let message = '⏰ *Horarios de atención:*\n\n';
+
+    for (let day = 1; day <= 6; day++) {
+      const schedule = schedules.find((s) => s.dayOfWeek === day);
+      const dayName = DAY_NAMES[day];
+
+      if (
+        !schedule ||
+        schedule.isClosed ||
+        !schedule.startTime ||
+        !schedule.endTime
+      ) {
+        message += `*${dayName}*: Cerrado\n`;
+      } else {
+        message += `*${dayName}*: ${schedule.startTime} a ${schedule.endTime}\n`;
+      }
+    }
+
+    // Sunday
+    const sunSchedule = schedules.find((s) => s.dayOfWeek === DayOfWeek.SUNDAY);
+    if (
+      sunSchedule &&
+      !sunSchedule.isClosed &&
+      sunSchedule.startTime &&
+      sunSchedule.endTime
+    ) {
+      message += `\n*Domingo*: ${sunSchedule.startTime} a ${sunSchedule.endTime}`;
+    } else {
+      message += `\n*Domingo*: Cerrado`;
+    }
+
+    message += '\n\nReservá tu turno en: http://localhost:3000/book';
+
+    return message;
   }
 
   async getLogs(): Promise<WhatsappWebhookLog[]> {
@@ -106,7 +173,12 @@ export class WhatsappService {
     direction: MessageDirection,
     waMessageId?: string,
   ): Promise<void> {
-    const log = this.logsRepo.create({ phone, message, direction, waMessageId });
+    const log = this.logsRepo.create({
+      phone,
+      message,
+      direction,
+      waMessageId,
+    });
     await this.logsRepo.save(log).catch(() => {});
   }
 

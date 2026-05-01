@@ -10,6 +10,7 @@ const navItems = [
   { href: '/admin/appointments', label: '📅 Turnos' },
   { href: '/admin/promotions', label: '🏷️ Promociones' },
   { href: '/admin/services', label: '✂️ Servicios' },
+  { href: '/admin/schedule', label: '🕐 Horarios' },
   { href: '/admin/clients', label: '👥 Clientes' },
   { href: '/admin/whatsapp', label: '💬 WhatsApp' },
 ];
@@ -47,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }}
       >
         <div className="flex items-center gap-2">
-          <span style={{ color: 'var(--color-primary)' }}>✂️</span>
+          <img src="/favicon.svg" alt="Logo" className="w-6 h-6" />
           <span className="font-bold text-sm" style={{ color: 'var(--color-text)' }}>Admin Panel</span>
         </div>
         <div className="flex items-center gap-3">

@@ -11,6 +11,7 @@ export default function BookPage() {
   const [services, setServices] = useState<any[]>([]);
   const [barbers, setBarbers] = useState<any[]>([]);
   const [slots, setSlots] = useState<string[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
 
   const [selectedService, setSelectedService] = useState<any>(null);
   const [selectedBarber, setSelectedBarber] = useState<any>(null);
@@ -24,7 +25,6 @@ export default function BookPage() {
 
   useEffect(() => {
     api.getServices().then(setServices).catch(() => {});
-    // Fetch barbers (users endpoint is admin-only, so we mock or call public endpoint)
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`)
       .then((r) => (r.ok ? r.json() : []))
       .then(setBarbers)
@@ -33,10 +33,19 @@ export default function BookPage() {
 
   useEffect(() => {
     if (selectedDate && selectedBarber && selectedService) {
+      setSlotsLoading(true);
+      setSlots([]);
+      setSlotsLoading(false);
       api
         .getSlots(selectedDate, selectedBarber.id, selectedService.duration)
-        .then(setSlots)
-        .catch(() => setSlots([]));
+        .then((data) => {
+          setSlots(data);
+          setSlotsLoading(false);
+        })
+        .catch(() => {
+          setSlots([]);
+          setSlotsLoading(false);
+        });
     }
   }, [selectedDate, selectedBarber, selectedService]);
 
@@ -71,10 +80,10 @@ export default function BookPage() {
         <p className="text-sm mb-8" style={{ color: '#ffffff' }}>
           {selectedService?.name} el {selectedDate} a las {selectedSlot}
         </p>
-          <Link href="/" className="block w-full max-w-xs py-4 rounded-xl text-center font-semibold"
-            style={{ background: '#bc19eb', color: '#ffffff' }}>
-            Volver al inicio
-          </Link>
+        <Link href="/" className="block w-full max-w-xs py-4 rounded-xl text-center font-semibold"
+          style={{ background: '#bc19eb', color: '#ffffff' }}>
+          Volver al inicio
+        </Link>
       </main>
     );
   }
@@ -99,7 +108,7 @@ export default function BookPage() {
       {step === 1 && (
         <div>
           <h2 className="text-base font-semibold mb-4" style={{ color: '#ffffff' }}>
-            1. Elegí el servicio
+            1. Elegi el servicio
           </h2>
           <div className="flex flex-col gap-3">
             {services.map((svc) => (
@@ -121,17 +130,17 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* Step 2: Choose date */}
+      {/* Step 2: Choose date and barber */}
       {step === 2 && (
         <div>
           <h2 className="text-base font-semibold mb-4" style={{ color: '#ffffff' }}>
-            2. Elegí la fecha
+            2. Elegi la fecha
           </h2>
           <input
             type="date"
             min={today}
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+            onChange={(e) => { setSelectedDate(e.target.value); setSelectedSlot(''); }}
             className="w-full p-4 rounded-2xl text-base outline-none"
             style={{
               background: '#1a1a1a',
@@ -142,9 +151,9 @@ export default function BookPage() {
           {barbers.length > 0 && (
             <div className="mt-4">
               <p className="text-sm mb-2" style={{ color: '#ffffff' }}>Barbero</p>
-                <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
                 {barbers.map((b: any) => (
-                  <button key={b.id} onClick={() => setSelectedBarber(b)}
+                  <button key={b.id} onClick={() => { setSelectedBarber(b); setSelectedSlot(''); }}
                     className="w-full p-3 rounded-xl text-left"
                     style={{
                       background: selectedBarber?.id === b.id ? '#bc19eb' : '#1a1a1a',
@@ -157,10 +166,10 @@ export default function BookPage() {
               </div>
             </div>
           )}
-            <div className="flex gap-3 mt-6">
+          <div className="flex gap-3 mt-6">
             <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl font-medium"
               style={{ background: '#1a1a1a', color: '#ffffff', border: '1px solid #333333' }}>
-              Atrás
+              Atras
             </button>
             <button onClick={() => setStep(3)} disabled={!selectedDate}
               className="flex-1 py-3 rounded-xl font-semibold disabled:opacity-40"
@@ -175,18 +184,22 @@ export default function BookPage() {
       {step === 3 && (
         <div>
           <h2 className="text-base font-semibold mb-4" style={{ color: '#ffffff' }}>
-            3. Elegí el horario
+            3. Elegi el horario
           </h2>
-          {slots.length === 0 ? (
+          {slotsLoading ? (
             <p className="text-center py-8" style={{ color: '#aaaaaa' }}>
-              No hay horarios disponibles para ese día.
+              Cargando horarios...
+            </p>
+          ) : slots.length === 0 ? (
+            <p className="text-center py-8" style={{ color: '#aaaaaa' }}>
+              No hay horarios disponibles para ese dia.
             </p>
           ) : (
             <div className="grid grid-cols-3 gap-2">
               {slots.map((slot) => (
                 <button key={slot} onClick={() => setSelectedSlot(slot)}
                   className="py-3 rounded-xl text-sm font-medium transition-all active:scale-95"
-                   style={{
+                  style={{
                     background: selectedSlot === slot ? '#bc19eb' : '#1a1a1a',
                     color: selectedSlot === slot ? '#ffffff' : '#ffffff',
                     border: `2px solid ${selectedSlot === slot ? '#bc19eb' : '#333333'}`,
@@ -196,10 +209,10 @@ export default function BookPage() {
               ))}
             </div>
           )}
-            <div className="flex gap-3 mt-6">
+          <div className="flex gap-3 mt-6">
             <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl font-medium"
               style={{ background: '#1a1a1a', color: '#ffffff', border: '1px solid #333333' }}>
-              Atrás
+              Atras
             </button>
             <button onClick={() => setStep(4)} disabled={!selectedSlot}
               className="flex-1 py-3 rounded-xl font-semibold disabled:opacity-40"
@@ -253,10 +266,10 @@ export default function BookPage() {
             </p>
           )}
 
-            <div className="flex gap-3">
+          <div className="flex gap-3">
             <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-xl font-medium"
               style={{ background: '#1a1a1a', color: '#ffffff', border: '1px solid #333333' }}>
-              Atrás
+              Atras
             </button>
             <button
               onClick={handleBook}

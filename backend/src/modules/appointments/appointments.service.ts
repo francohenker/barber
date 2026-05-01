@@ -6,10 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
-import { CreateAppointmentDto, UpdateAppointmentStatusDto } from './dto/create-appointment.dto';
+import {
+  CreateAppointmentDto,
+  UpdateAppointmentStatusDto,
+} from './dto/create-appointment.dto';
 import { ClientsService } from '../clients/clients.service';
 import { ServicesService } from '../services/services.service';
 import { UsersService } from '../users/users.service';
+import { WorkSchedulesService } from '../work-schedules/work-schedules.service';
 import { AppointmentSource } from '../../common/enums/appointment.enum';
 
 @Injectable()
@@ -20,6 +24,7 @@ export class AppointmentsService {
     private readonly clientsService: ClientsService,
     private readonly servicesService: ServicesService,
     private readonly usersService: UsersService,
+    private readonly workSchedulesService: WorkSchedulesService,
   ) {}
 
   async create(
@@ -51,7 +56,9 @@ export class AppointmentsService {
       .getOne();
 
     if (conflict) {
-      throw new BadRequestException('El horario seleccionado no está disponible');
+      throw new BadRequestException(
+        'El horario seleccionado no está disponible',
+      );
     }
 
     const appointment = this.appointmentsRepo.create({
@@ -90,23 +97,55 @@ export class AppointmentsService {
     return appt;
   }
 
-  async updateStatus(id: string, dto: UpdateAppointmentStatusDto): Promise<Appointment> {
+  async updateStatus(
+    id: string,
+    dto: UpdateAppointmentStatusDto,
+  ): Promise<Appointment> {
     await this.findOne(id);
     await this.appointmentsRepo.update(id, { status: dto.status });
     return this.findOne(id);
   }
 
-  async getAvailableSlots(date: string, barberId: string, serviceDuration: number): Promise<string[]> {
+  async getAvailableSlots(
+    date: string,
+    barberId: string,
+    serviceDuration: number,
+  ): Promise<string[]> {
+    // Get day of week from date (0=Sunday, 1=Monday, ... 6=Saturday)
+    const dateObj = new Date(date + 'T12:00:00');
+    const dayOfWeek = dateObj.getDay();
+
+    // Get barber's work schedule for this day
+    const schedule = await this.workSchedulesService.findByUserAndDay(
+      barberId,
+      dayOfWeek,
+    );
+
+    // If no schedule exists or day is closed, return empty
+    if (!schedule || schedule.isClosed) {
+      return [];
+    }
+
+    if (!schedule.startTime || !schedule.endTime) {
+      return [];
+    }
+
+    // Parse work hours
+    const [startH, startM] = schedule.startTime.split(':').map(Number);
+    const [endH, endM] = schedule.endTime.split(':').map(Number);
+    const workStart = startH * 60 + startM;
+    const workEnd = endH * 60 + endM;
+
+    // Get booked appointments
     const booked = await this.appointmentsRepo.find({
       where: { date, barber: { id: barberId } },
       select: ['startTime', 'endTime'],
     });
 
-    const workStart = 9 * 60; // 9:00
-    const workEnd = 19 * 60; // 19:00
+    // Generate slots every 60 minutes
     const slots: string[] = [];
 
-    for (let min = workStart; min + serviceDuration <= workEnd; min += 30) {
+    for (let min = workStart; min + serviceDuration <= workEnd; min += 60) {
       const sh = Math.floor(min / 60);
       const sm = min % 60;
       const eh = Math.floor((min + serviceDuration) / 60);

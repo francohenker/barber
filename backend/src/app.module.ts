@@ -9,6 +9,7 @@ import { ServicesModule } from './modules/services/services.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
+import { WorkSchedulesModule } from './modules/work-schedules/work-schedules.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
     AppointmentsModule,
     PromotionsModule,
     WhatsappModule,
+    WorkSchedulesModule,
   ],
 })
 export class AppModule {}

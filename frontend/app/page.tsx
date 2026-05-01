@@ -26,14 +26,14 @@ export default async function HomePage() {
         />
 
         <div className="relative z-10 max-w-sm w-full mx-auto">
-          {/* Logo / Brand */}
+          {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
-            <span className="text-4xl">✂️</span>
+            <img src="/favicon.svg" alt="Barberia Logo" className="w-12 h-12" />
             <span
               className="text-2xl font-bold tracking-widest uppercase"
               style={{ color: '#bc19eb' }}
             >
-              Barbería
+              Barberia
             </span>
           </div>
 
@@ -47,7 +47,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-base mb-10" style={{ color: '#aaaaaa' }}>
-            Reservá en segundos, sin llamadas. Elegí el servicio, el día y la hora que más te
+            Reserva en segundos, sin llamadas. Elegi el servicio, el dia y la hora que mas te
             convenga.
           </p>
 
@@ -72,6 +72,15 @@ export default async function HomePage() {
           >
             Ver promociones
           </Link>
+
+          {/* Indoor image */}
+          <div className="mt-12 rounded-2xl overflow-hidden" style={{ border: '1px solid #333333' }}>
+            <img
+              src="/indoor.svg"
+              alt="Interior de la barberia"
+              className="w-full h-auto opacity-80"
+            />
+          </div>
         </div>
       </section>
 
@@ -113,18 +122,21 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer
-        className="border-t py-6 px-6 text-center text-sm"
+        className="border-t py-8 px-6 text-center"
         style={{
           borderColor: '#333333',
           color: '#aaaaaa',
         }}
       >
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <img src="/favicon.svg" alt="Logo" className="w-6 h-6 opacity-60" />
+        </div>
         <Link
           href="/admin"
           className="underline underline-offset-2"
           style={{ color: '#aaaaaa' }}
         >
-          Panel de administración
+          Panel de administracion
         </Link>
       </footer>
     </main>

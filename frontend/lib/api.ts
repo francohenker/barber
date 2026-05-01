@@ -65,6 +65,7 @@ export const api = {
   // Promotions
   getActivePromotions: () => request<any[]>('/promotions/active'),
   getAllPromotions: (token: string) => request<any[]>('/promotions', {}, token),
+  getPromotion: (id: string, token: string) => request<any>(`/promotions/${id}`, {}, token),
   createPromotion: (data: any, token: string) =>
     request<any>('/promotions', { method: 'POST', body: JSON.stringify(data) }, token),
   updatePromotion: (id: string, data: any, token: string) =>
@@ -73,6 +74,18 @@ export const api = {
     request<void>(`/promotions/${id}`, { method: 'DELETE' }, token),
   sendPromotionNow: (id: string, token: string) =>
     request<any>(`/promotions/${id}/send-now`, { method: 'POST' }, token),
+
+  // Work Schedules
+  getSchedules: (token: string) => request<any[]>('/work-schedules', {}, token),
+  getSchedulesByBarber: (barberId: string, token: string) => request<any[]>(`/work-schedules/barber/${barberId}`, {}, token),
+  createSchedule: (data: any, token: string) =>
+    request<any>('/work-schedules', { method: 'POST', body: JSON.stringify(data) }, token),
+  bulkUpdateSchedules: (schedules: any[], token: string) =>
+    request<any[]>('/work-schedules/bulk', { method: 'POST', body: JSON.stringify({ schedules }) }, token),
+  updateSchedule: (id: string, data: any, token: string) =>
+    request<any>(`/work-schedules/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, token),
+  deleteSchedule: (id: string, token: string) =>
+    request<void>(`/work-schedules/${id}`, { method: 'DELETE' }, token),
 
   // WhatsApp
   getWhatsappLogs: (token: string) => request<any[]>('/whatsapp/logs', {}, token),
