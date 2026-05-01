@@ -1,5 +1,6 @@
 <svg width="800" height="250" viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg">
-  <!-- Fondo transparente -->
+  <!-- Fondo blanco -->
+  <rect width="800" height="250" fill="white"/>
 
   <!-- Texto superior -->
   <text x="400" y="70"
