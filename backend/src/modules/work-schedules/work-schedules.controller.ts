@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { WorkSchedulesService } from './work-schedules.service';
 import {
@@ -20,6 +19,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../../common/types/auth.types';
 
 @Controller('work-schedules')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -27,7 +27,7 @@ export class WorkSchedulesController {
   constructor(private readonly schedulesService: WorkSchedulesService) {}
 
   @Get()
-  async findAll(@CurrentUser() user: any) {
+  async findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.schedulesService.findByUserId(user.id);
   }
 
@@ -45,7 +45,7 @@ export class WorkSchedulesController {
   @Post('bulk')
   @Roles(Role.ADMIN)
   bulkUpdate(
-    @CurrentUser() user: any,
+    @CurrentUser() user: AuthenticatedUser,
     @Body('schedules') schedules: Omit<BulkUpdateScheduleDto, 'userId'>[],
   ) {
     return this.schedulesService.bulkUpdate(user.id, schedules);

@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Req, Res, Query, HttpCode, UseGuards, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  Query,
+  HttpCode,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { WhatsappService } from './whatsapp.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { WhatsAppWebhookPayload } from '../../common/types/auth.types';
 
 @Controller('whatsapp')
 export class WhatsappController {
@@ -14,7 +25,6 @@ export class WhatsappController {
     private readonly config: ConfigService,
   ) {}
 
-  /** Meta webhook verification (GET) */
   @Get('webhook')
   verifyWebhook(
     @Query('hub.mode') mode: string,
@@ -24,18 +34,20 @@ export class WhatsappController {
   ) {
     const verifyToken = this.config.get<string>('WHATSAPP_VERIFY_TOKEN');
     if (mode === 'subscribe' && token === verifyToken) {
-      this.logger.log('WhatsApp webhook verified ✅');
-      return (res as any).status(200).send(challenge);
+      this.logger.log('WhatsApp webhook verified');
+      return res.status(200).send(challenge);
     }
-    return (res as any).status(403).send('Forbidden');
+    return res.status(403).send('Forbidden');
   }
 
-  /** Meta webhook incoming messages (POST) */
   @Post('webhook')
   @HttpCode(200)
   async receiveWebhook(@Req() req: Request) {
-    const signature = req.headers['x-hub-signature-256'] as string;
-    const webhookSecret = this.config.get<string>('WHATSAPP_WEBHOOK_SECRET', '');
+    const signature = req.headers['x-hub-signature-256'] as string | undefined;
+    const webhookSecret = this.config.get<string>(
+      'WHATSAPP_WEBHOOK_SECRET',
+      '',
+    );
 
     if (webhookSecret && signature) {
       const expectedSig =
@@ -51,11 +63,11 @@ export class WhatsappController {
       }
     }
 
-    await this.whatsappService.processWebhook(req.body);
+    const body = req.body as WhatsAppWebhookPayload;
+    await this.whatsappService.processWebhook(body);
     return { status: 'ok' };
   }
 
-  /** Admin: get message logs */
   @Get('logs')
   @UseGuards(JwtAuthGuard)
   getLogs() {

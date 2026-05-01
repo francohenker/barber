@@ -7,6 +7,7 @@ import { MessageDirection } from '../../common/enums/message-direction.enum';
 import { WorkSchedulesService } from '../work-schedules/work-schedules.service';
 import { UsersService } from '../users/users.service';
 import { DayOfWeek } from '../work-schedules/entities/work-schedule.entity';
+import { WhatsAppWebhookPayload } from '../../common/types/auth.types';
 
 const DAY_NAMES: Record<number, string> = {
   0: 'Domingo',
@@ -17,6 +18,10 @@ const DAY_NAMES: Record<number, string> = {
   5: 'Viernes',
   6: 'Sabado',
 };
+
+interface WhatsAppApiResponse {
+  messages?: Array<{ id: string }>;
+}
 
 @Injectable()
 export class WhatsappService {
@@ -56,7 +61,7 @@ export class WhatsappService {
         }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as WhatsAppApiResponse;
       const waMessageId = data?.messages?.[0]?.id;
 
       await this.logMessage(phone, text, MessageDirection.OUT, waMessageId);
@@ -65,8 +70,8 @@ export class WhatsappService {
     }
   }
 
-  async processWebhook(body: any): Promise<void> {
-    const entry = body?.entry?.[0];
+  async processWebhook(body: WhatsAppWebhookPayload): Promise<void> {
+    const entry = body.entry?.[0];
     const changes = entry?.changes?.[0];
     const messages = changes?.value?.messages;
 
@@ -74,7 +79,7 @@ export class WhatsappService {
 
     for (const msg of messages) {
       const from = msg.from;
-      const text = msg.text?.body || '';
+      const text = msg.text?.body ?? '';
       const waMessageId = msg.id;
 
       await this.logMessage(from, text, MessageDirection.IN, waMessageId);
@@ -92,12 +97,12 @@ export class WhatsappService {
     ) {
       await this.sendTextMessage(
         phone,
-        '✂️ ¡Hola! Para reservar tu turno ingresá a nuestra web:\n👉 http://localhost:3000/book\n\nO escribinos "¿Cuándo tienen disponible?" para consultar horarios.',
+        '¡Hola! Para reservar tu turno ingresa a nuestra web:\n http://localhost:3000/book\n\nO escribinos "¿Cualdo tienen disponible?" para consultar horarios.',
       );
     } else if (lowerText.includes('cancelar')) {
       await this.sendTextMessage(
         phone,
-        'Para cancelar tu turno, por favor contactá directamente con la barbería. 📞',
+        'Para cancelar tu turno, por favor contacta directamente con la barberia.',
       );
     } else if (
       lowerText.includes('horario') ||
@@ -108,7 +113,7 @@ export class WhatsappService {
     } else {
       await this.sendTextMessage(
         phone,
-        '✂️ ¡Hola! Soy el asistente de la barbería. Puedo ayudarte a:\n\n• *Reservar un turno*\n• *Consultar horarios*\n• *Cancelar un turno*\n\n¿En qué te puedo ayudar?',
+        '¡Hola! Soy el asistente de la barberia. Puedo ayudarte a:\n\n• *Reservar un turno*\n• *Consultar horarios*\n• *Cancelar un turno*\n\n¿En que te puedo ayudar?',
       );
     }
   }
@@ -116,18 +121,17 @@ export class WhatsappService {
   private async buildHoursMessage(): Promise<string> {
     const barbers = await this.usersService.findAllBarbers();
     if (barbers.length === 0) {
-      return '⏰ No hay horarios configurados aún.\n\nReservá tu turno en: http://localhost:3000/book';
+      return 'No hay horarios configurados aun.\n\nReserva tu turno en: http://localhost:3000/book';
     }
 
-    // Use first barber's schedule (or could aggregate)
     const barber = barbers[0];
     const schedules = await this.workSchedulesService.findByUserId(barber.id);
 
     if (schedules.length === 0) {
-      return '⏰ No hay horarios configurados aún.\n\nReservá tu turno en: http://localhost:3000/book';
+      return 'No hay horarios configurados aun.\n\nReserva tu turno en: http://localhost:3000/book';
     }
 
-    let message = '⏰ *Horarios de atención:*\n\n';
+    let message = '*Horarios de atencion:*\n\n';
 
     for (let day = 1; day <= 6; day++) {
       const schedule = schedules.find((s) => s.dayOfWeek === day);
@@ -145,7 +149,6 @@ export class WhatsappService {
       }
     }
 
-    // Sunday
     const sunSchedule = schedules.find((s) => s.dayOfWeek === DayOfWeek.SUNDAY);
     if (
       sunSchedule &&
@@ -158,7 +161,7 @@ export class WhatsappService {
       message += `\n*Domingo*: Cerrado`;
     }
 
-    message += '\n\nReservá tu turno en: http://localhost:3000/book';
+    message += '\n\nReserva tu turno en: http://localhost:3000/book';
 
     return message;
   }

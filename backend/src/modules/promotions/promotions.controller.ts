@@ -15,18 +15,17 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthenticatedUser } from '../../common/types/auth.types';
 
 @Controller('promotions')
 export class PromotionsController {
   constructor(private readonly promotionsService: PromotionsService) {}
 
-  /** Public: active promotions for the landing page */
   @Get('active')
   findActive() {
     return this.promotionsService.findActive();
   }
 
-  /** Admin: all promotions */
   @Get()
   @UseGuards(JwtAuthGuard)
   findAll() {
@@ -42,7 +41,7 @@ export class PromotionsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  create(@Body() dto: CreatePromotionDto, @CurrentUser() user: any) {
+  create(@Body() dto: CreatePromotionDto, @CurrentUser() user: AuthenticatedUser) {
     return this.promotionsService.create(dto, user);
   }
 
@@ -52,7 +51,7 @@ export class PromotionsController {
   update(
     @Param('id') id: string,
     @Body() dto: CreatePromotionDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.promotionsService.update(id, dto, user);
   }
@@ -60,15 +59,14 @@ export class PromotionsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  remove(@Param('id') id: string, @CurrentUser() user: any) {
+  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.promotionsService.remove(id, user);
   }
 
-  /** Admin: send a promotion right now via WhatsApp */
   @Post(':id/send-now')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  sendNow(@Param('id') id: string, @CurrentUser() user: any) {
+  sendNow(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.promotionsService.sendNow(id, user);
   }
 }

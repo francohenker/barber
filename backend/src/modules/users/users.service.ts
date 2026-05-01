@@ -22,7 +22,7 @@ export class UsersService {
     const exists = await this.usersRepo.findOne({
       where: { email: dto.email },
     });
-    if (exists) throw new ConflictException('El email ya está registrado');
+    if (exists) throw new ConflictException('El email ya esta registrado');
 
     const hash = await bcrypt.hash(dto.password, 10);
     const user = this.usersRepo.create({ ...dto, password: hash });
@@ -97,7 +97,7 @@ export class UsersService {
 
   async update(id: string, dto: UpdateUserDto): Promise<User> {
     await this.findOne(id);
-    const updateData: any = { ...dto };
+    const updateData: Partial<UpdateUserDto> = { ...dto };
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }

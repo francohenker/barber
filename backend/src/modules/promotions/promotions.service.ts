@@ -11,8 +11,9 @@ import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { PromotionStatus } from '../../common/enums/promotion.enum';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
 import { ClientsService } from '../clients/clients.service';
-import { User } from '../users/entities/user.entity';
 import { Role } from '../../common/enums/role.enum';
+import type { AuthenticatedUser } from '../../common/types/auth.types';
+import type { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PromotionsService {
@@ -23,7 +24,10 @@ export class PromotionsService {
     private readonly clientsService: ClientsService,
   ) {}
 
-  async create(dto: CreatePromotionDto, user: User): Promise<Promotion> {
+  async create(
+    dto: CreatePromotionDto,
+    user: AuthenticatedUser,
+  ): Promise<Promotion> {
     if (user.role !== Role.ADMIN) {
       throw new ForbiddenException(
         'Solo los administradores pueden crear promociones',
@@ -36,7 +40,7 @@ export class PromotionsService {
     const promotion = this.promotionsRepo.create({
       ...dto,
       status,
-      createdBy: user,
+      createdBy: { id: user.id } as Partial<User>,
       scheduledSendAt: dto.scheduledSendAt
         ? new Date(dto.scheduledSendAt)
         : undefined,
@@ -58,14 +62,14 @@ export class PromotionsService {
 
   async findOne(id: string): Promise<Promotion> {
     const p = await this.promotionsRepo.findOne({ where: { id } });
-    if (!p) throw new NotFoundException('Promoción no encontrada');
+    if (!p) throw new NotFoundException('Promocion no encontrada');
     return p;
   }
 
   async update(
     id: string,
     dto: Partial<CreatePromotionDto>,
-    user: User,
+    user: AuthenticatedUser,
   ): Promise<Promotion> {
     if (user.role !== Role.ADMIN) throw new ForbiddenException();
     await this.findOne(id);
@@ -78,21 +82,19 @@ export class PromotionsService {
     return this.findOne(id);
   }
 
-  async remove(id: string, user: User): Promise<void> {
+  async remove(id: string, user: AuthenticatedUser): Promise<void> {
     if (user.role !== Role.ADMIN) throw new ForbiddenException();
     await this.findOne(id);
     await this.promotionsRepo.delete(id);
   }
 
-  /** Send a promotion immediately to all clients via WhatsApp */
-  async sendNow(id: string, user: User): Promise<Promotion> {
+  async sendNow(id: string, user: AuthenticatedUser): Promise<Promotion> {
     if (user.role !== Role.ADMIN) throw new ForbiddenException();
     const promotion = await this.findOne(id);
     await this.sendToAllClients(promotion);
     return this.findOne(id);
   }
 
-  /** Cron: check every minute for promotions to send */
   @Cron(CronExpression.EVERY_MINUTE)
   async processScheduledPromotions(): Promise<void> {
     const pending = await this.promotionsRepo.find({
@@ -128,14 +130,13 @@ export class PromotionsService {
   }
 
   private buildPromotionMessage(promotion: Promotion): string {
-    let msg = `✂️ *${promotion.title}*\n\n${promotion.description}`;
+    let msg = `${promotion.title}\n\n${promotion.description}`;
     if (promotion.discountPercent) {
-      msg += `\n\n🏷️ *${promotion.discountPercent}% de descuento*`;
+      msg += `\n\n*${promotion.discountPercent}% de descuento*`;
     } else if (promotion.discountAmount) {
-      msg += `\n\n🏷️ *$${promotion.discountAmount} de descuento*`;
+      msg += `\n\n*$${promotion.discountAmount} de descuento*`;
     }
-    msg +=
-      '\n\n📱 Reservá tu turno en nuestra web o respondiendo este mensaje.';
+    msg += '\n\nReserva tu turno en nuestra web o respondiendo este mensaje.';
     return msg;
   }
 }
