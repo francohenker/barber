@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
@@ -16,9 +16,26 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, logout, handleOAuthToken } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const oauthHandled = useRef(false);
+
+  // Handle OAuth token from URL (uses window directly to avoid useSearchParams prerender issue)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token && !oauthHandled.current) {
+      oauthHandled.current = true;
+      handleOAuthToken(token)
+        .catch(() => {
+          router.replace('/login');
+        })
+        .finally(() => {
+          window.history.replaceState({}, '', pathname);
+        });
+    }
+  }, [handleOAuthToken, router, pathname]);
 
   useEffect(() => {
     if (!isLoading && !user) {
