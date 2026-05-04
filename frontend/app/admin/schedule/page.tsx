@@ -207,67 +207,71 @@ export default function ScheduleAdminPage() {
               })}
             </div>
 
-            <div className="flex items-end gap-3">
-              <div className="flex-1">
-                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 1</label>
-                <input
-                  type="time"
-                  value={applyTime.startTime}
-                  onChange={(e) => setApplyTime((a) => ({ ...a, startTime: e.target.value }))}
-                  className="w-full p-2 rounded-xl text-sm outline-none"
-                  style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                />
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="flex-1">
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 1</label>
+                  <input
+                    type="time"
+                    value={applyTime.startTime}
+                    onChange={(e) => setApplyTime((a) => ({ ...a, startTime: e.target.value }))}
+                    className="w-full p-2 rounded-xl text-sm outline-none"
+                    style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 1</label>
+                  <input
+                    type="time"
+                    value={applyTime.endTime}
+                    onChange={(e) => setApplyTime((a) => ({ ...a, endTime: e.target.value }))}
+                    className="w-full p-2 rounded-xl text-sm outline-none"
+                    style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 2</label>
+                  <input
+                    type="time"
+                    value={applyTime.startTime2 || ''}
+                    onChange={(e) => setApplyTime((a) => ({ ...a, startTime2: e.target.value || null }))}
+                    className="w-full p-2 rounded-xl text-sm outline-none"
+                    style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 2</label>
+                  <input
+                    type="time"
+                    value={applyTime.endTime2 || ''}
+                    onChange={(e) => setApplyTime((a) => ({ ...a, endTime2: e.target.value || null }))}
+                    className="w-full p-2 rounded-xl text-sm outline-none"
+                    style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  />
+                </div>
               </div>
-              <div className="flex-1">
-                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 1</label>
-                <input
-                  type="time"
-                  value={applyTime.endTime}
-                  onChange={(e) => setApplyTime((a) => ({ ...a, endTime: e.target.value }))}
-                  className="w-full p-2 rounded-xl text-sm outline-none"
-                  style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                />
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="applyClosed"
+                    checked={applyTime.isClosed}
+                    onChange={(e) => setApplyTime((a) => ({ ...a, isClosed: e.target.checked }))}
+                    className="w-4 h-4 accent-yellow-500"
+                  />
+                  <label htmlFor="applyClosed" className="text-xs font-medium" style={{ color: 'var(--color-text)' }}>
+                    Cerrado
+                  </label>
+                </div>
+                <button
+                  onClick={handleApplyToSelected}
+                  disabled={selectedDays.length === 0}
+                  className="px-6 py-2 rounded-xl text-xs font-semibold disabled:opacity-40 transition-all active:scale-95"
+                  style={{ background: 'var(--color-primary)', color: '#ffffff' }}
+                >
+                  Aplicar
+                </button>
               </div>
-              <div className="flex-1">
-                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 2</label>
-                <input
-                  type="time"
-                  value={applyTime.startTime2 || ''}
-                  onChange={(e) => setApplyTime((a) => ({ ...a, startTime2: e.target.value || null }))}
-                  className="w-full p-2 rounded-xl text-sm outline-none"
-                  style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                />
-              </div>
-              <div className="flex-1">
-                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 2</label>
-                <input
-                  type="time"
-                  value={applyTime.endTime2 || ''}
-                  onChange={(e) => setApplyTime((a) => ({ ...a, endTime2: e.target.value || null }))}
-                  className="w-full p-2 rounded-xl text-sm outline-none"
-                  style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                />
-              </div>
-              <div className="flex items-center gap-2 pb-1">
-                <input
-                  type="checkbox"
-                  id="applyClosed"
-                  checked={applyTime.isClosed}
-                  onChange={(e) => setApplyTime((a) => ({ ...a, isClosed: e.target.checked }))}
-                  className="w-4 h-4 accent-yellow-500"
-                />
-                <label htmlFor="applyClosed" className="text-xs" style={{ color: 'var(--color-text)' }}>
-                  Cerrado
-                </label>
-              </div>
-              <button
-                onClick={handleApplyToSelected}
-                disabled={selectedDays.length === 0}
-                className="px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-40"
-                style={{ background: 'var(--color-primary)', color: '#ffffff' }}
-              >
-                Aplicar
-              </button>
             </div>
           </div>
 

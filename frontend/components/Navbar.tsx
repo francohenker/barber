@@ -36,8 +36,8 @@ export default function Navbar() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
-            <Link href="/book" className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all hover:bg-[var(--color-surface-2)]">
-              Reservar
+            <Link href="/login" className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all hover:bg-[var(--color-surface-2)]">
+              Login
             </Link>
             <Link href="/login" className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg bg-[var(--color-primary)] text-xs md:text-sm font-semibold text-white shadow-lg transition-all hover:bg-[var(--color-primary-dark)] active:scale-95">
               Admin
