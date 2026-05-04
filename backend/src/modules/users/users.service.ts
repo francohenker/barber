@@ -37,6 +37,10 @@ export class UsersService {
     return this.usersRepo.find({ where: { role: Role.BARBER } });
   }
 
+  async findActiveBarbers(): Promise<User[]> {
+    return this.usersRepo.find({ where: { role: Role.BARBER, isActive: true } });
+  }
+
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('Usuario no encontrado');

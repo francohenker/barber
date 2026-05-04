@@ -1,5 +1,38 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+  avatar?: string;
+  isActive: boolean;
+}
+
+export interface Barber extends User {}
+
+export interface WorkSchedule {
+  id: string;
+  dayOfWeek: number;
+  startTime: string | null;
+  endTime: string | null;
+  startTime2: string | null;
+  endTime2: string | null;
+  isClosed: boolean;
+}
+
+export interface Appointment {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  client: any;
+  service: any;
+  barber: User;
+}
+
 async function request<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -89,4 +122,14 @@ export const api = {
 
   // WhatsApp
   getWhatsappLogs: (token: string) => request<any[]>('/whatsapp/logs', {}, token),
+
+  // Barbers
+  getActiveBarbers: () => request<Barber[]>('/barbers/active'),
+  getAllBarbers: (token: string) => request<Barber[]>('/barbers', {}, token),
+  createBarber: (data: Partial<Barber> & { password?: string }, token: string) =>
+    request<Barber>('/barbers', { method: 'POST', body: JSON.stringify(data) }, token),
+  updateBarber: (id: string, data: Partial<Barber> & { password?: string }, token: string) =>
+    request<Barber>(`/barbers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, token),
+  deleteBarber: (id: string, token: string) =>
+    request<void>(`/barbers/${id}`, { method: 'DELETE' }, token),
 };

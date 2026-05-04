@@ -14,7 +14,7 @@ import { ClientsService } from '../clients/clients.service';
 import { ServicesService } from '../services/services.service';
 import { UsersService } from '../users/users.service';
 import { WorkSchedulesService } from '../work-schedules/work-schedules.service';
-import { AppointmentSource } from '../../common/enums/appointment.enum';
+import { AppointmentSource, AppointmentStatus } from '../../common/enums/appointment.enum';
 
 @Injectable()
 export class AppointmentsService {
@@ -130,11 +130,21 @@ export class AppointmentsService {
       return [];
     }
 
-    // Parse work hours
+    // Parse work hours for first shift
     const [startH, startM] = schedule.startTime.split(':').map(Number);
     const [endH, endM] = schedule.endTime.split(':').map(Number);
     const workStart = startH * 60 + startM;
     const workEnd = endH * 60 + endM;
+
+    // Optional second shift
+    let workStart2: number | null = null;
+    let workEnd2: number | null = null;
+    if (schedule.startTime2 && schedule.endTime2) {
+      const [startH2, startM2] = schedule.startTime2.split(':').map(Number);
+      const [endH2, endM2] = schedule.endTime2.split(':').map(Number);
+      workStart2 = startH2 * 60 + startM2;
+      workEnd2 = endH2 * 60 + endM2;
+    }
 
     // Get booked appointments
     const booked = await this.appointmentsRepo.find({
@@ -145,20 +155,38 @@ export class AppointmentsService {
     // Generate slots every 60 minutes
     const slots: string[] = [];
 
-    for (let min = workStart; min + serviceDuration <= workEnd; min += 60) {
-      const sh = Math.floor(min / 60);
-      const sm = min % 60;
-      const eh = Math.floor((min + serviceDuration) / 60);
-      const em = (min + serviceDuration) % 60;
-      const start = `${String(sh).padStart(2, '0')}:${String(sm).padStart(2, '0')}`;
-      const end = `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
+    // Helper to generate slots for a specific range
+    const generateForRange = (startMin: number, endMin: number) => {
+      for (let min = startMin; min + serviceDuration <= endMin; min += 60) {
+        const sh = Math.floor(min / 60);
+        const sm = min % 60;
+        const eh = Math.floor((min + serviceDuration) / 60);
+        const em = (min + serviceDuration) % 60;
+        const start = `${String(sh).padStart(2, '0')}:${String(sm).padStart(2, '0')}`;
+        const end = `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
 
-      const hasConflict = booked.some(
-        (b) => b.startTime < end && b.endTime > start,
-      );
-      if (!hasConflict) slots.push(start);
+        const hasConflict = booked.some(
+          (b) => b.startTime < end && b.endTime > start,
+        );
+        if (!hasConflict && !slots.includes(start)) slots.push(start);
+      }
+    };
+
+    generateForRange(workStart, workEnd);
+    if (workStart2 !== null && workEnd2 !== null) {
+      generateForRange(workStart2, workEnd2);
     }
 
     return slots;
+  }
+
+  async getFutureAppointments(barberId: string): Promise<Appointment[]> {
+    const today = new Date().toISOString().split('T')[0];
+    return this.appointmentsRepo.find({
+      where: {
+        barber: { id: barberId },
+      },
+      relations: ['client', 'service', 'barber'],
+    }).then(appts => appts.filter(a => a.date >= today && a.status !== AppointmentStatus.CANCELLED));
   }
 }

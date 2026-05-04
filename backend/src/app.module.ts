@@ -10,6 +10,7 @@ import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
 import { WorkSchedulesModule } from './modules/work-schedules/work-schedules.module';
+import { BarbersModule } from './modules/barbers/barbers.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { WorkSchedulesModule } from './modules/work-schedules/work-schedules.mod
     PromotionsModule,
     WhatsappModule,
     WorkSchedulesModule,
+    BarbersModule,
   ],
 })
 export class AppModule {}

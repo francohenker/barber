@@ -41,6 +41,8 @@ export class WorkSchedulesService {
       return this.update(existing.id, {
         startTime: dto.startTime,
         endTime: dto.endTime,
+        startTime2: dto.startTime2,
+        endTime2: dto.endTime2,
         isClosed: dto.isClosed ?? false,
       });
     }
@@ -50,6 +52,8 @@ export class WorkSchedulesService {
       dayOfWeek: dto.dayOfWeek,
       startTime: dto.startTime ?? null,
       endTime: dto.endTime ?? null,
+      startTime2: dto.startTime2 ?? null,
+      endTime2: dto.endTime2 ?? null,
       isClosed: dto.isClosed ?? false,
     });
 
@@ -89,6 +93,8 @@ export class WorkSchedulesService {
           dayOfWeek: s.dayOfWeek,
           startTime: s.startTime ?? null,
           endTime: s.endTime ?? null,
+          startTime2: s.startTime2 ?? null,
+          endTime2: s.endTime2 ?? null,
           isClosed: s.isClosed,
         });
         const saved = await this.schedulesRepo.save(created);

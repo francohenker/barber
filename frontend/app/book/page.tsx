@@ -2,19 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, Barber } from '@/lib/api';
 
 type Step = 1 | 2 | 3 | 4;
 
 export default function BookPage() {
   const [step, setStep] = useState<Step>(1);
   const [services, setServices] = useState<any[]>([]);
-  const [barbers, setBarbers] = useState<any[]>([]);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
 
   const [selectedService, setSelectedService] = useState<any>(null);
-  const [selectedBarber, setSelectedBarber] = useState<any>(null);
+  const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('');
   const [clientName, setClientName] = useState('');
@@ -25,8 +25,7 @@ export default function BookPage() {
 
   useEffect(() => {
     api.getServices().then(setServices).catch(() => {});
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`)
-      .then((r) => (r.ok ? r.json() : []))
+    api.getActiveBarbers()
       .then(setBarbers)
       .catch(() => setBarbers([]));
   }, []);
@@ -52,6 +51,13 @@ export default function BookPage() {
   const handleBook = async () => {
     setLoading(true);
     setError('');
+    
+    if (!/^\+\d{10,15}$/.test(clientPhone)) {
+      setError('El WhatsApp debe incluir el código de país (ej: +5491123456789)');
+      setLoading(false);
+      return;
+    }
+
     try {
       const client = await api.findOrCreateClient({ name: clientName, phone: clientPhone });
       await api.createAppointment({
@@ -59,7 +65,7 @@ export default function BookPage() {
         startTime: selectedSlot,
         clientId: client.id,
         serviceId: selectedService.id,
-        barberId: selectedBarber.id,
+        barberId: selectedBarber!.id,
       });
       setSuccess(true);
     } catch (e: any) {
@@ -152,7 +158,7 @@ export default function BookPage() {
             <div className="mt-4">
               <p className="text-sm mb-2" style={{ color: '#ffffff' }}>Barbero</p>
               <div className="flex flex-col gap-2">
-                {barbers.map((b: any) => (
+                {barbers.map((b) => (
                   <button key={b.id} onClick={() => { setSelectedBarber(b); setSelectedSlot(''); }}
                     className="w-full p-3 rounded-xl text-left"
                     style={{
@@ -251,7 +257,9 @@ export default function BookPage() {
             />
             <input
               type="tel"
-              placeholder="Tu WhatsApp (ej: 1122334455)"
+              placeholder="Tu WhatsApp (ej: +5491122334455)"
+              pattern="^\+\d{10,15}$"
+              title="Debe incluir el código de país, ej: +5491123456789"
               value={clientPhone}
               onChange={(e) => setClientPhone(e.target.value)}
               className="w-full p-4 rounded-2xl text-base outline-none"

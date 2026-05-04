@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth';
 const navItems = [
   { href: '/admin', label: '📊 Dashboard', exact: true },
   { href: '/admin/appointments', label: '📅 Turnos' },
+  { href: '/admin/barbers', label: '💈 Barberos' },
   { href: '/admin/promotions', label: '🏷️ Promociones' },
   { href: '/admin/services', label: '✂️ Servicios' },
   { href: '/admin/schedule', label: '🕐 Horarios' },

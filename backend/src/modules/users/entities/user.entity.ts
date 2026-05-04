@@ -21,6 +21,9 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({ nullable: true })
+  phone: string;
+
   @Column({ nullable: true, select: false })
   password: string;
 
@@ -32,6 +35,9 @@ export class User {
 
   @Column({ type: 'enum', enum: Role, default: Role.BARBER })
   role: Role;
+
+  @Column({ name: 'is_active', default: true })
+  isActive: boolean;
 
   @Column({ nullable: true, name: 'refresh_token', select: false })
   refreshToken: string;

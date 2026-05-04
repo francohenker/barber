@@ -20,6 +20,8 @@ interface DaySchedule {
   id: string | null;
   startTime: string;
   endTime: string;
+  startTime2: string | null;
+  endTime2: string | null;
   isClosed: boolean;
 }
 
@@ -31,14 +33,16 @@ export default function ScheduleAdminPage() {
       label: d.label,
       id: null,
       startTime: '09:00',
-      endTime: '19:00',
+      endTime: '13:00',
+      startTime2: '15:00',
+      endTime2: '19:00',
       isClosed: false,
     }))
   );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [applyTime, setApplyTime] = useState({ startTime: '09:00', endTime: '19:00', isClosed: false });
+  const [applyTime, setApplyTime] = useState({ startTime: '09:00', endTime: '13:00', startTime2: '15:00', endTime2: '19:00', isClosed: false });
 
   const isAdmin = user?.role === 'ADMIN';
 
@@ -54,7 +58,9 @@ export default function ScheduleAdminPage() {
               label: d.label,
               id: found.id,
               startTime: found.startTime || '09:00',
-              endTime: found.endTime || '19:00',
+              endTime: found.endTime || '13:00',
+              startTime2: found.startTime2 || null,
+              endTime2: found.endTime2 || null,
               isClosed: found.isClosed,
             };
           }
@@ -63,7 +69,9 @@ export default function ScheduleAdminPage() {
             label: d.label,
             id: null,
             startTime: '09:00',
-            endTime: '19:00',
+            endTime: '13:00',
+            startTime2: '15:00',
+            endTime2: '19:00',
             isClosed: false,
           };
         });
@@ -83,7 +91,7 @@ export default function ScheduleAdminPage() {
     setDays((prev) =>
       prev.map((d) =>
         selectedDays.includes(d.dayOfWeek)
-          ? { ...d, startTime: applyTime.startTime, endTime: applyTime.endTime, isClosed: applyTime.isClosed }
+          ? { ...d, startTime: applyTime.startTime, endTime: applyTime.endTime, startTime2: applyTime.startTime2, endTime2: applyTime.endTime2, isClosed: applyTime.isClosed }
           : d,
       ),
     );
@@ -105,6 +113,8 @@ export default function ScheduleAdminPage() {
         dayOfWeek: d.dayOfWeek,
         startTime: d.isClosed ? null : d.startTime,
         endTime: d.isClosed ? null : d.endTime,
+        startTime2: d.isClosed ? null : d.startTime2,
+        endTime2: d.isClosed ? null : d.endTime2,
         isClosed: d.isClosed,
       }));
       await api.bulkUpdateSchedules(payload, token);
@@ -155,7 +165,7 @@ export default function ScheduleAdminPage() {
 
             <div className="flex items-end gap-3">
               <div className="flex-1">
-                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Hora inicio</label>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 1</label>
                 <input
                   type="time"
                   value={applyTime.startTime}
@@ -165,11 +175,31 @@ export default function ScheduleAdminPage() {
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Hora fin</label>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 1</label>
                 <input
                   type="time"
                   value={applyTime.endTime}
                   onChange={(e) => setApplyTime((a) => ({ ...a, endTime: e.target.value }))}
+                  className="w-full p-2 rounded-xl text-sm outline-none"
+                  style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 2</label>
+                <input
+                  type="time"
+                  value={applyTime.startTime2 || ''}
+                  onChange={(e) => setApplyTime((a) => ({ ...a, startTime2: e.target.value || null }))}
+                  className="w-full p-2 rounded-xl text-sm outline-none"
+                  style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 2</label>
+                <input
+                  type="time"
+                  value={applyTime.endTime2 || ''}
+                  onChange={(e) => setApplyTime((a) => ({ ...a, endTime2: e.target.value || null }))}
                   className="w-full p-2 rounded-xl text-sm outline-none"
                   style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                 />
@@ -226,26 +256,62 @@ export default function ScheduleAdminPage() {
                 </div>
 
                 {!day.isClosed && (
-                  <div className="flex gap-3">
-                    <div className="flex-1">
-                      <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio</label>
-                      <input
-                        type="time"
-                        value={day.startTime}
-                        onChange={(e) => updateDay(day.dayOfWeek, 'startTime', e.target.value)}
-                        className="w-full p-2 rounded-xl text-sm outline-none"
-                        style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                      />
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 1</label>
+                        <input
+                          type="time"
+                          value={day.startTime}
+                          onChange={(e) => updateDay(day.dayOfWeek, 'startTime', e.target.value)}
+                          className="w-full p-2 rounded-xl text-sm outline-none"
+                          style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 1</label>
+                        <input
+                          type="time"
+                          value={day.endTime}
+                          onChange={(e) => updateDay(day.dayOfWeek, 'endTime', e.target.value)}
+                          className="w-full p-2 rounded-xl text-sm outline-none"
+                          style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                        />
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin</label>
-                      <input
-                        type="time"
-                        value={day.endTime}
-                        onChange={(e) => updateDay(day.dayOfWeek, 'endTime', e.target.value)}
-                        className="w-full p-2 rounded-xl text-sm outline-none"
-                        style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                      />
+                    
+                    <div className="flex gap-3 items-end">
+                      <div className="flex-1">
+                        <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Inicio 2 (Opcional)</label>
+                        <input
+                          type="time"
+                          value={day.startTime2 || ''}
+                          onChange={(e) => updateDay(day.dayOfWeek, 'startTime2', e.target.value || null)}
+                          className="w-full p-2 rounded-xl text-sm outline-none"
+                          style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-xs mb-1 block" style={{ color: 'var(--color-text-muted)' }}>Fin 2 (Opcional)</label>
+                        <input
+                          type="time"
+                          value={day.endTime2 || ''}
+                          onChange={(e) => updateDay(day.dayOfWeek, 'endTime2', e.target.value || null)}
+                          className="w-full p-2 rounded-xl text-sm outline-none"
+                          style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                        />
+                      </div>
+                      {day.startTime2 && (
+                        <button 
+                          onClick={() => {
+                            updateDay(day.dayOfWeek, 'startTime2', null);
+                            updateDay(day.dayOfWeek, 'endTime2', null);
+                          }}
+                          className="p-2 mb-1 rounded-xl text-sm"
+                          style={{ background: 'var(--color-surface-2)', color: 'var(--color-error)' }}>
+                          ✕
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

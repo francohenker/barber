@@ -39,6 +39,12 @@ export class WorkSchedule {
   @Column({ type: 'time', nullable: true, name: 'end_time' })
   endTime: string | null;
 
+  @Column({ type: 'time', nullable: true, name: 'start_time_2' })
+  startTime2: string | null;
+
+  @Column({ type: 'time', nullable: true, name: 'end_time_2' })
+  endTime2: string | null;
+
   @Column({ name: 'is_closed', default: false })
   isClosed: boolean;
 
