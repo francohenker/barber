@@ -8,6 +8,8 @@ export default function UsersAdminPage() {
   const { token, user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('ALL');
 
   const isAdmin = user?.role === 'ADMIN';
 
@@ -44,17 +46,59 @@ export default function UsersAdminPage() {
 
   if (!isAdmin) return <div className="p-6 text-center text-white">No tienes permisos.</div>;
 
+  const filteredUsers = users.filter((u) => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = 
+      u.name.toLowerCase().includes(term) || 
+      u.email.toLowerCase().includes(term) || 
+      (u.phone && u.phone.includes(term));
+    const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
   return (
     <main className="px-5 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>👤 Usuarios</h1>
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>👤 Usuarios</h1>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input 
+            type="text" 
+            placeholder="Buscar por nombre, email o teléfono..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 p-3 rounded-xl text-sm outline-none transition-all placeholder:text-[var(--color-text-muted)]"
+            style={{ 
+              background: 'var(--color-surface)', 
+              border: '1px solid var(--color-border)', 
+              color: 'var(--color-text)' 
+            }}
+          />
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="p-3 rounded-xl text-sm outline-none transition-all sm:w-48"
+            style={{ 
+              background: 'var(--color-surface)', 
+              border: '1px solid var(--color-border)', 
+              color: 'var(--color-text)' 
+            }}
+          >
+            <option value="ALL">Todos los roles</option>
+            <option value="USER">Usuarios</option>
+            <option value="BARBER">Barberos</option>
+            <option value="ADMIN">Administradores</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
         <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>Cargando...</div>
       ) : (
         <div className="flex flex-col gap-3">
-          {users.map((u) => (
+          {filteredUsers.map((u) => (
             <div key={u.id} className="p-4 rounded-2xl flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
               style={{
                 background: 'var(--color-surface)',
@@ -91,9 +135,9 @@ export default function UsersAdminPage() {
               </div>
             </div>
           ))}
-          {users.length === 0 && (
+          {filteredUsers.length === 0 && (
             <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>
-              No hay usuarios registrados.
+              No hay usuarios que coincidan con la búsqueda.
             </div>
           )}
         </div>

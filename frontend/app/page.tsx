@@ -39,8 +39,9 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-base mb-10" style={{ color: '#aaaaaa' }}>
-            Reserva en segundos, sin llamadas. Elegi el servicio, el dia y la hora que mas te
-            convenga.
+            Reserva en segundos, sin llamadas.
+            <br />
+            Elegi el servicio, el dia y la hora que mas te convenga.
           </p>
 
           <Link
@@ -114,13 +115,13 @@ export default async function HomePage() {
         }}
       >
 
-          <div className="flex items-center justify-center gap-2">
-            <img
-              src="/indoor.svg"
-              alt="Interior de la barberia"
-              className="w-37 h-15 opacity-80"
-            />
-          </div>
+        <div className="flex items-center justify-center gap-2">
+          <img
+            src="/indoor.svg"
+            alt="Interior de la barberia"
+            className="w-37 h-15 opacity-80"
+          />
+        </div>
         <Link
           href="/admin"
           className="underline underline-offset-2"
