@@ -67,30 +67,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-dvh flex flex-col" style={{ background: 'var(--color-bg)' }}>
-      {/* Top bar */}
-      <header
-        className="flex items-center justify-between px-5 py-4 sticky top-0 z-10"
-        style={{
-          background: 'rgba(10,10,10,0.95)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
-        <div className="flex items-center gap-2">
-          <img src="/favicon.svg" alt="Logo" className="w-6 h-6" />
-          <span className="font-bold text-sm" style={{ color: 'var(--color-text)' }}>Admin Panel</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs px-2 py-1 rounded-full"
-            style={{ background: 'rgba(188, 25, 235, 0.15)', color: 'var(--color-primary)' }}>
-            {user.role}
-          </span>
-          <button onClick={() => logout().then(() => router.replace('/login'))}
-            className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            Salir
-          </button>
-        </div>
-      </header>
+
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto pb-20 relative">
