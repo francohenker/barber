@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -34,11 +34,13 @@ export class UsersService {
   }
 
   async findAllBarbers(): Promise<User[]> {
-    return this.usersRepo.find({ where: { role: Role.BARBER } });
+    return this.usersRepo.find({ where: { role: In([Role.BARBER, Role.ADMIN]) } });
   }
 
   async findActiveBarbers(): Promise<User[]> {
-    return this.usersRepo.find({ where: { role: Role.BARBER, isActive: true } });
+    return this.usersRepo.find({
+      where: { role: In([Role.BARBER, Role.ADMIN]), isActive: true },
+    });
   }
 
   async findOne(id: string): Promise<User> {
