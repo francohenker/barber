@@ -13,7 +13,13 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user) router.replace('/admin');
+    if (user) {
+      if (user.role === 'ADMIN') {
+        router.replace('/admin');
+      } else {
+        router.replace('/');
+      }
+    }
   }, [user, router]);
 
   useEffect(() => {
@@ -21,7 +27,6 @@ export default function LoginPage() {
     const token = params.get('token');
     if (token) {
       handleOAuthToken(token)
-        .then(() => router.replace('/admin'))
         .catch(() => {
           setError('No se pudo completar el inicio de sesion con Google');
           window.history.replaceState({}, '', '/login');
@@ -35,7 +40,7 @@ export default function LoginPage() {
     setError('');
     try {
       await login(email, password);
-      router.push('/admin');
+      // The useEffect listening to `user` will handle the redirect
     } catch (err: any) {
       setError(err.message || 'Credenciales invalidas');
     } finally {

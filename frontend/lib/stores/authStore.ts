@@ -1,67 +1,102 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { api } from '../api';
 
-interface AuthUser {
+export interface AuthUser {
   id: string;
   email: string;
-  role: 'ADMIN' | 'BARBER';
+  role: 'ADMIN' | 'BARBER' | 'USER';
 }
 
-interface AuthState {
+export interface AuthState {
   user: AuthUser | null;
   token: string | null;
   isLoading: boolean;
+  hasHydrated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
   handleOAuthToken: (token: string) => Promise<void>;
+  setHasHydrated: (state: boolean) => void;
 }
 
-const STORAGE_KEY = 'access_token';
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
+      isLoading: true, // initial state
+      hasHydrated: false,
 
-function getStoredToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(STORAGE_KEY);
-}
+      setHasHydrated: (state: boolean) => {
+        set({ hasHydrated: state });
+      },
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: getStoredToken(),
-  isLoading: true,
+      initialize: async () => {
+        // Migrate old token if exists
+        if (typeof window !== 'undefined') {
+          const oldToken = localStorage.getItem('access_token');
+          if (oldToken) {
+            set({ token: oldToken });
+            localStorage.removeItem('access_token');
+          }
+        }
 
-  initialize: async () => {
-    const storedToken = getStoredToken();
-    if (!storedToken) {
-      set({ isLoading: false });
-      return;
+        const { token } = get();
+        if (!token) {
+          set({ isLoading: false });
+          return;
+        }
+        
+        try {
+          const user = await api.me(token);
+          set({ user, isLoading: false });
+        } catch {
+          // Token is invalid or expired
+          set({ user: null, token: null, isLoading: false });
+        }
+      },
+
+      handleOAuthToken: async (token: string) => {
+        set({ isLoading: true });
+        try {
+          const user = await api.me(token);
+          set({ user, token, isLoading: false });
+        } catch (e) {
+          set({ user: null, token: null, isLoading: false });
+          throw e;
+        }
+      },
+
+      login: async (email: string, password: string) => {
+        set({ isLoading: true });
+        try {
+          const { accessToken } = await api.login(email, password);
+          set({token: accessToken});
+          const user = await api.me(accessToken);
+          set({ user, isLoading: false });
+        } catch (e) {
+          set({ isLoading: false });
+          throw e;
+        }
+      },
+
+      logout: async () => {
+        const { token } = get();
+        if (token) {
+          await api.logout(token).catch(() => {});
+        }
+        set({ user: null, token: null, isLoading: false });
+      },
+    }),
+    {
+      name: 'auth-storage', // key in localStorage
+      partialize: (state) => ({ token: state.token }), // only save the token to localStorage
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
+      },
     }
-    try {
-      const user = await api.me(storedToken);
-      set({ user, token: storedToken });
-    } catch {
-      localStorage.removeItem(STORAGE_KEY);
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  handleOAuthToken: async (token: string) => {
-    localStorage.setItem(STORAGE_KEY, token);
-    const user = await api.me(token);
-    set({ user, token, isLoading: false });
-  },
-
-  login: async (email: string, password: string) => {
-    const { accessToken } = await api.login(email, password);
-    localStorage.setItem(STORAGE_KEY, accessToken);
-    const user = await api.me(accessToken);
-    set({ user, token: accessToken });
-  },
-
-  logout: async () => {
-    const state = useAuthStore.getState();
-    if (state.token) await api.logout(state.token).catch(() => {});
-    localStorage.removeItem(STORAGE_KEY);
-    set({ user: null, token: null });
-  },
-}));
+  )
+);

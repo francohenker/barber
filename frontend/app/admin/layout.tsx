@@ -40,8 +40,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const hasTokenInUrl = !!params.get('token');
-    if (!isLoading && !user && !hasTokenInUrl) {
-      router.replace('/login');
+    if (!isLoading) {
+      if (!user && !hasTokenInUrl) {
+        router.replace('/login');
+      } else if (user && user.role !== 'ADMIN') {
+        router.replace('/');
+      }
     }
   }, [user, isLoading, router]);
 
