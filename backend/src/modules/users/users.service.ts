@@ -96,7 +96,7 @@ export class UsersService {
       name: googleUser.name,
       googleId: googleUser.googleId,
       avatar: googleUser.avatar,
-      role: Role.BARBER,
+      role: Role.USER,
     });
     return this.usersRepo.save(user);
   }

@@ -33,7 +33,7 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ type: 'enum', enum: Role, default: Role.BARBER })
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
 
   @Column({ name: 'is_active', default: true })

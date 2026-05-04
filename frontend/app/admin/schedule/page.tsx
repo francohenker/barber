@@ -44,7 +44,13 @@ export default function ScheduleAdminPage() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [selectedBarberId, setSelectedBarberId] = useState<string>('');
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [applyTime, setApplyTime] = useState({ startTime: '09:00', endTime: '13:00', startTime2: '15:00', endTime2: '19:00', isClosed: false });
+  const [applyTime, setApplyTime] = useState<{
+    startTime: string;
+    endTime: string;
+    startTime2: string | null;
+    endTime2: string | null;
+    isClosed: boolean;
+  }>({ startTime: '09:00', endTime: '13:00', startTime2: '15:00', endTime2: '19:00', isClosed: false });
 
   const isAdmin = user?.role === 'ADMIN';
 

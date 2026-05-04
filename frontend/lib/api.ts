@@ -123,6 +123,11 @@ export const api = {
   // WhatsApp
   getWhatsappLogs: (token: string) => request<any[]>('/whatsapp/logs', {}, token),
 
+  // Users
+  getAllUsers: (token: string) => request<User[]>('/users', {}, token),
+  updateUserRole: (id: string, role: string, token: string) =>
+    request<User>(`/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }, token),
+
   // Barbers
   getActiveBarbers: () => request<Barber[]>('/barbers/active'),
   getAllBarbers: (token: string) => request<Barber[]>('/barbers', {}, token),
