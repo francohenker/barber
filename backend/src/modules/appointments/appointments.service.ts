@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
@@ -67,6 +68,7 @@ export class AppointmentsService {
       endTime,
       notes: dto.notes,
       source,
+      status: AppointmentStatus.CONFIRMED,
       client,
       service,
       barber,
@@ -188,5 +190,36 @@ export class AppointmentsService {
       },
       relations: ['client', 'service', 'barber'],
     }).then(appts => appts.filter(a => a.date >= today && a.status !== AppointmentStatus.CANCELLED));
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async autoCompleteAppointments() {
+    const now = new Date();
+    
+    // Getting local date string YYYY-MM-DD
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const localDate = `${year}-${month}-${day}`;
+    
+    // Getting local time string HH:MM
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const localTime = `${hours}:${minutes}`;
+
+    const pastAppointments = await this.appointmentsRepo
+      .createQueryBuilder('a')
+      .where('a.status = :status', { status: AppointmentStatus.CONFIRMED })
+      .andWhere('(a.date < :today OR (a.date = :today AND a.end_time <= :time))', { 
+        today: localDate, 
+        time: localTime 
+      })
+      .getMany();
+
+    if (pastAppointments.length > 0) {
+      const ids = pastAppointments.map(a => a.id);
+      await this.appointmentsRepo.update(ids, { status: AppointmentStatus.COMPLETED });
+      console.log(`[Cron] Auto-completed ${pastAppointments.length} appointments at ${localDate} ${localTime}`);
+    }
   }
 }

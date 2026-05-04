@@ -42,13 +42,13 @@ export class WorkSchedulesController {
     return this.schedulesService.create(dto);
   }
 
-  @Post('bulk')
+  @Post('bulk/:barberId')
   @Roles(Role.ADMIN)
   bulkUpdate(
-    @CurrentUser() user: AuthenticatedUser,
+    @Param('barberId') barberId: string,
     @Body('schedules') schedules: Omit<BulkUpdateScheduleDto, 'userId'>[],
   ) {
-    return this.schedulesService.bulkUpdate(user.id, schedules);
+    return this.schedulesService.bulkUpdate(barberId, schedules);
   }
 
   @Patch(':id')

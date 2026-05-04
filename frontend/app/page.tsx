@@ -26,16 +26,8 @@ export default async function HomePage() {
         />
 
         <div className="relative z-10 max-w-sm w-full mx-auto">
-          {/* Logo */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <img src="/favicon.svg" alt="Barberia Logo" className="w-12 h-12" />
-            <span
-              className="text-2xl font-bold tracking-widest uppercase"
-              style={{ color: '#bc19eb' }}
-            >
-              Barberia
-            </span>
-          </div>
+
+
 
           <h1
             className="text-4xl font-bold leading-tight mb-4"
@@ -73,14 +65,7 @@ export default async function HomePage() {
             Ver promociones
           </Link>
 
-          {/* Indoor image */}
-          <div className="mt-12 rounded-2xl overflow-hidden" style={{ border: '1px solid #333333' }}>
-            <img
-              src="/indoor.svg"
-              alt="Interior de la barberia"
-              className="w-full h-auto opacity-80"
-            />
-          </div>
+
         </div>
       </section>
 
@@ -128,9 +113,14 @@ export default async function HomePage() {
           color: '#aaaaaa',
         }}
       >
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <img src="/favicon.svg" alt="Logo" className="w-6 h-6 opacity-60" />
-        </div>
+
+          <div className="flex items-center justify-center gap-2">
+            <img
+              src="/indoor.svg"
+              alt="Interior de la barberia"
+              className="w-37 h-15 opacity-80"
+            />
+          </div>
         <Link
           href="/admin"
           className="underline underline-offset-2"

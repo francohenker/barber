@@ -26,15 +26,22 @@ export default function BookPage() {
   useEffect(() => {
     api.getServices().then(setServices).catch(() => {});
     api.getActiveBarbers()
-      .then(setBarbers)
+      .then((data) => {
+        setBarbers(data);
+        if (data.length === 1) {
+          setSelectedBarber(data[0]);
+        }
+      })
       .catch(() => setBarbers([]));
   }, []);
 
   useEffect(() => {
-    if (selectedDate && selectedBarber && selectedService) {
+    if (selectedDate && selectedBarber && selectedService.id) {
+      console.log("date: ", selectedDate);
+      console.log("barber: ", selectedBarber);
+      console.log("service: ", selectedService);
       setSlotsLoading(true);
       setSlots([]);
-      setSlotsLoading(false);
       api
         .getSlots(selectedDate, selectedBarber.id, selectedService.duration)
         .then((data) => {
@@ -154,7 +161,7 @@ export default function BookPage() {
               color: '#ffffff',
             }}
           />
-          {barbers.length > 0 && (
+          {barbers.length > 0 ? (
             <div className="mt-4">
               <p className="text-sm mb-2" style={{ color: '#ffffff' }}>Barbero</p>
               <div className="flex flex-col gap-2">
@@ -171,13 +178,17 @@ export default function BookPage() {
                 ))}
               </div>
             </div>
+          ) : (
+            <p className="text-sm mt-4 p-3 rounded-xl" style={{ background: '#3a1a1a', color: '#ff6b6b' }}>
+              No hay barberos disponibles actualmente.
+            </p>
           )}
           <div className="flex gap-3 mt-6">
             <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl font-medium"
               style={{ background: '#1a1a1a', color: '#ffffff', border: '1px solid #333333' }}>
               Atras
             </button>
-            <button onClick={() => setStep(3)} disabled={!selectedDate}
+            <button onClick={() => setStep(3)} disabled={!selectedDate || barbers.length === 0 || !selectedBarber}
               className="flex-1 py-3 rounded-xl font-semibold disabled:opacity-40"
               style={{ background: '#bc19eb', color: '#ffffff' }}>
               Siguiente

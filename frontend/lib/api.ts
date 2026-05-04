@@ -113,8 +113,8 @@ export const api = {
   getSchedulesByBarber: (barberId: string, token: string) => request<any[]>(`/work-schedules/barber/${barberId}`, {}, token),
   createSchedule: (data: any, token: string) =>
     request<any>('/work-schedules', { method: 'POST', body: JSON.stringify(data) }, token),
-  bulkUpdateSchedules: (schedules: any[], token: string) =>
-    request<any[]>('/work-schedules/bulk', { method: 'POST', body: JSON.stringify({ schedules }) }, token),
+  bulkUpdateSchedules: (barberId: string, schedules: any[], token: string) =>
+    request<any[]>(`/work-schedules/bulk/${barberId}`, { method: 'POST', body: JSON.stringify({ schedules }) }, token),
   updateSchedule: (id: string, data: any, token: string) =>
     request<any>(`/work-schedules/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, token),
   deleteSchedule: (id: string, token: string) =>

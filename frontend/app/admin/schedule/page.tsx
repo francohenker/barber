@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
-import { api } from '@/lib/api';
+import { api, Barber } from '@/lib/api';
 
 const DAYS = [
   { value: 1, label: 'Lunes' },
@@ -41,14 +41,30 @@ export default function ScheduleAdminPage() {
   );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [selectedBarberId, setSelectedBarberId] = useState<string>('');
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [applyTime, setApplyTime] = useState({ startTime: '09:00', endTime: '13:00', startTime2: '15:00', endTime2: '19:00', isClosed: false });
 
   const isAdmin = user?.role === 'ADMIN';
 
   useEffect(() => {
-    if (!token) return;
-    api.getSchedules(token)
+    api.getActiveBarbers()
+      .then((data) => {
+        setBarbers(data);
+        if (data.length > 0) {
+          setSelectedBarberId(data[0].id);
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!token || !selectedBarberId) return;
+    setLoading(true);
+    api.getSchedulesByBarber(selectedBarberId, token)
       .then((data) => {
         const updated = DAYS.map((d) => {
           const found = data.find((s: any) => s.dayOfWeek === d.value);
@@ -79,7 +95,7 @@ export default function ScheduleAdminPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, selectedBarberId]);
 
   const updateDay = (dayOfWeek: number, field: keyof DaySchedule, value: any) => {
     setDays((prev) =>
@@ -106,7 +122,7 @@ export default function ScheduleAdminPage() {
   };
 
   const handleSave = async () => {
-    if (!token || !isAdmin) return;
+    if (!token || !isAdmin || !selectedBarberId) return;
     setSaving(true);
     try {
       const payload = days.map((d) => ({
@@ -117,7 +133,7 @@ export default function ScheduleAdminPage() {
         endTime2: d.isClosed ? null : d.endTime2,
         isClosed: d.isClosed,
       }));
-      await api.bulkUpdateSchedules(payload, token);
+      await api.bulkUpdateSchedules(selectedBarberId, payload, token);
       alert('Horarios guardados correctamente');
     } catch (e: any) {
       alert(e.message);
@@ -132,13 +148,35 @@ export default function ScheduleAdminPage() {
         <h1 className="text-xl font-bold" style={{ color: 'var(--color-text)' }}>🕐 Horarios</h1>
       </div>
 
-      {loading ? (
+      {barbers.length === 0 && !loading ? (
+        <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>
+          No hay barberos activos. Por favor, crea o activa un barbero primero.
+        </div>
+      ) : loading && barbers.length === 0 ? (
         <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>Cargando...</div>
       ) : (
         <>
-          {/* Apply to selected */}
-          <div className="mb-6 p-4 rounded-2xl"
-            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <div className="mb-6">
+            <label className="text-sm mb-2 block" style={{ color: 'var(--color-text-muted)' }}>Seleccionar Barbero</label>
+            <select
+              value={selectedBarberId}
+              onChange={(e) => setSelectedBarberId(e.target.value)}
+              className="w-full p-3 rounded-xl text-base outline-none"
+              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+            >
+              {barbers.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>Cargando horarios...</div>
+          ) : (
+            <>
+              {/* Apply to selected */}
+              <div className="mb-6 p-4 rounded-2xl"
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
             <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--color-text)' }}>
               Aplicar horario a varios dias
             </h2>
@@ -335,6 +373,8 @@ export default function ScheduleAdminPage() {
             >
               {saving ? 'Guardando...' : 'Guardar horarios'}
             </button>
+          )}
+            </>
           )}
         </>
       )}
