@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
@@ -38,7 +38,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [handleOAuthToken, router, pathname]);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    const params = new URLSearchParams(window.location.search);
+    const hasTokenInUrl = !!params.get('token');
+    if (!isLoading && !user && !hasTokenInUrl) {
       router.replace('/login');
     }
   }, [user, isLoading, router]);
