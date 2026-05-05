@@ -42,6 +42,9 @@ export class Promotion {
   @Column({ nullable: true, name: 'image_url' })
   imageUrl: string;
 
+  @Column({ type: 'jsonb', nullable: true, name: 'target_client_ids' })
+  targetClientIds: string[];
+
   @Column({
     type: 'enum',
     enum: PromotionStatus,

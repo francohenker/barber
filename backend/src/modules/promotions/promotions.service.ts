@@ -113,14 +113,22 @@ export class PromotionsService {
 
   private async sendToAllClients(promotion: Promotion): Promise<void> {
     const clients = await this.clientsService.findAll();
-    const clientsWithPhone = clients.filter((c) => c.phone);
+    let clientsWithPhone = clients.filter((c) => c.phone);
+
+    if (promotion.targetClientIds && promotion.targetClientIds.length > 0) {
+      clientsWithPhone = clientsWithPhone.filter(c => promotion.targetClientIds.includes(c.id));
+    }
 
     const message = this.buildPromotionMessage(promotion);
 
     await Promise.allSettled(
-      clientsWithPhone.map((client) =>
-        this.whatsappService.sendTextMessage(client.phone, message),
-      ),
+      clientsWithPhone.map((client) => {
+        if (promotion.imageUrl) {
+          return this.whatsappService.sendMediaMessage(client.phone, message, promotion.imageUrl);
+        } else {
+          return this.whatsappService.sendTextMessage(client.phone, message);
+        }
+      })
     );
 
     await this.promotionsRepo.update(promotion.id, {

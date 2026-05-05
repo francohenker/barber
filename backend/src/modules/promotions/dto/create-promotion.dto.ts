@@ -37,4 +37,8 @@ export class CreatePromotionDto {
   @IsDateString()
   @IsOptional()
   scheduledSendAt?: string;
+
+  @IsString({ each: true })
+  @IsOptional()
+  targetClientIds?: string[];
 }

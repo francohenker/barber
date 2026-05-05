@@ -21,11 +21,13 @@ const emptyForm = {
   sendViaWhatsapp: true,
   scheduledSendAt: '',
   status: 'DRAFT' as string,
+  targetClientIds: [] as string[],
 };
 
 export default function PromotionsAdminPage() {
   const { token, user } = useAuth();
   const [promotions, setPromotions] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -37,7 +39,10 @@ export default function PromotionsAdminPage() {
 
   useEffect(() => {
     if (!token) return;
-    api.getAllPromotions(token).then(setPromotions).catch(() => {}).finally(() => setLoading(false));
+    Promise.all([
+      api.getAllPromotions(token).then(setPromotions).catch(() => {}),
+      api.getClients(token).then(setClients).catch(() => {})
+    ]).finally(() => setLoading(false));
   }, [token]);
 
   const resetForm = () => {
@@ -58,6 +63,7 @@ export default function PromotionsAdminPage() {
         ...(form.imageUrl ? { imageUrl: form.imageUrl } : {}),
         ...(form.scheduledSendAt ? { scheduledSendAt: form.scheduledSendAt } : {}),
         ...(form.status && form.status !== 'DRAFT' ? { status: form.status } : {}),
+        ...(form.targetClientIds.length > 0 ? { targetClientIds: form.targetClientIds } : {}),
       };
 
       if (editId) {
@@ -88,6 +94,7 @@ export default function PromotionsAdminPage() {
       sendViaWhatsapp: promo.sendViaWhatsapp,
       scheduledSendAt: promo.scheduledSendAt ? new Date(promo.scheduledSendAt).toISOString().slice(0, 16) : '',
       status: promo.status,
+      targetClientIds: promo.targetClientIds || [],
     });
     setEditId(promo.id);
     setShowForm(true);
@@ -112,6 +119,17 @@ export default function PromotionsAdminPage() {
       await api.deletePromotion(id, token);
       setPromotions((prev) => prev.filter((p) => p.id !== id));
     } catch {}
+  };
+
+  const toggleClientSelection = (clientId: string) => {
+    setForm(prev => {
+      const isSelected = prev.targetClientIds.includes(clientId);
+      if (isSelected) {
+        return { ...prev, targetClientIds: prev.targetClientIds.filter(id => id !== clientId) };
+      } else {
+        return { ...prev, targetClientIds: [...prev.targetClientIds, clientId] };
+      }
+    });
   };
 
   return (
@@ -192,24 +210,51 @@ export default function PromotionsAdminPage() {
             </div>
 
             {form.sendViaWhatsapp && (
-              <div>
-                <p className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
-                  Fecha y hora de envio (dejar vacio para enviar manualmente)
-                </p>
-                <input
-                  type="datetime-local"
-                  value={form.scheduledSendAt}
-                  onChange={(e) => setForm((f) => ({ ...f, scheduledSendAt: e.target.value }))}
-                  className="w-full p-3 rounded-xl text-sm outline-none"
-                  style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                />
-              </div>
+              <>
+                <div>
+                  <p className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                    Fecha y hora de envio (dejar vacio para enviar manualmente)
+                  </p>
+                  <input
+                    type="datetime-local"
+                    value={form.scheduledSendAt}
+                    onChange={(e) => setForm((f) => ({ ...f, scheduledSendAt: e.target.value }))}
+                    className="w-full p-3 rounded-xl text-sm outline-none"
+                    style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  />
+                </div>
+                
+                <div>
+                  <p className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                    Clientes específicos (dejar vacío para enviar a TODOS)
+                  </p>
+                  <div className="max-h-48 overflow-y-auto p-2 rounded-xl" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>
+                    {clients.map(client => (
+                      <div key={client.id} className="flex items-center gap-2 mb-2 last:mb-0">
+                        <input 
+                          type="checkbox" 
+                          id={`client-${client.id}`}
+                          checked={form.targetClientIds.includes(client.id)}
+                          onChange={() => toggleClientSelection(client.id)}
+                          className="w-4 h-4 accent-yellow-500"
+                        />
+                        <label htmlFor={`client-${client.id}`} className="text-sm" style={{ color: 'var(--color-text)' }}>
+                          {client.name || 'Sin nombre'} {client.phone ? `(${client.phone})` : '(Sin teléfono)'}
+                        </label>
+                      </div>
+                    ))}
+                    {clients.length === 0 && (
+                      <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>No hay clientes registrados.</p>
+                    )}
+                  </div>
+                </div>
+              </>
             )}
 
             <button
               onClick={handleSave}
               disabled={saving || !form.title || !form.description}
-              className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-40"
+              className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-40 mt-2"
               style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
               {saving ? 'Guardando...' : editId ? 'Actualizar' : 'Guardar promocion'}
             </button>
@@ -229,12 +274,19 @@ export default function PromotionsAdminPage() {
               style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-start justify-between mb-2">
                 <p className="font-semibold" style={{ color: 'var(--color-text)' }}>{promo.title}</p>
-                <span className="text-xs px-2 py-1 rounded-full"
+                <span className="text-xs px-2 py-1 rounded-full whitespace-nowrap ml-2"
                   style={{ background: `${STATUS_COLORS[promo.status]}22`, color: STATUS_COLORS[promo.status] }}>
                   {STATUS_LABELS[promo.status]}
                 </span>
               </div>
               <p className="text-sm mb-2" style={{ color: 'var(--color-text-muted)' }}>{promo.description}</p>
+              
+              {promo.imageUrl && (
+                <div className="mb-2 w-16 h-16 rounded overflow-hidden relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={promo.imageUrl} alt="Promo" className="object-cover w-full h-full opacity-80" />
+                </div>
+              )}
 
               {promo.scheduledSendAt && !promo.sentAt && (
                 <p className="text-xs mb-2" style={{ color: 'var(--color-warning)' }}>
@@ -246,6 +298,10 @@ export default function PromotionsAdminPage() {
                   ✅ Enviado: {new Date(promo.sentAt).toLocaleString('es-AR')}
                 </p>
               )}
+              
+              <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                👥 Destinatarios: {promo.targetClientIds && promo.targetClientIds.length > 0 ? `${promo.targetClientIds.length} seleccionados` : 'Todos los clientes'}
+              </p>
 
               {isAdmin && (
                 <div className="flex gap-2 mt-3">
@@ -276,6 +332,11 @@ export default function PromotionsAdminPage() {
               )}
             </div>
           ))}
+          {promotions.length === 0 && (
+            <p className="text-center py-5 text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              No hay promociones registradas.
+            </p>
+          )}
         </div>
       )}
     </main>
