@@ -290,7 +290,7 @@ export class WhatsappService {
       await this.sessionsRepo.save(session);
 
       // Generate next 7 days list
-      const rows = [];
+      const rows: { id: string; title: string }[] = [];
       const today = new Date();
       for (let i = 0; i < 7; i++) {
         const d = new Date(today);
