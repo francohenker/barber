@@ -122,13 +122,22 @@ export default async function HomePage() {
             className="w-37 h-15 opacity-80"
           />
         </div>
-        <Link
-          href="/admin"
-          className="underline underline-offset-2"
-          style={{ color: '#aaaaaa' }}
-        >
-          Panel de administracion
-        </Link>
+        {/* <div className="flex flex-col items-center gap-4"> */}
+          <Link
+            href="/admin"
+            className="underline underline-offset-2"
+            style={{ color: '#aaaaaa' }}
+          >
+            Panel de administracion
+          </Link>
+          {/* <Link
+            href="/privacy"
+            className="text-xs hover:underline"
+            style={{ color: '#555555' }}
+          >
+            Política de Privacidad
+          </Link>
+        </div> */}
       </footer>
     </main>
   );
