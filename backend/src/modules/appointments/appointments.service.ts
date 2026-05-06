@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,6 +27,7 @@ export class AppointmentsService {
     private readonly clientsService: ClientsService,
     private readonly servicesService: ServicesService,
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => WorkSchedulesService))
     private readonly workSchedulesService: WorkSchedulesService,
   ) {}
 

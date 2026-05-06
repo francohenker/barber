@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppointmentsService } from './appointments.service';
 import { AppointmentsController } from './appointments.controller';
@@ -14,7 +14,7 @@ import { WorkSchedulesModule } from '../work-schedules/work-schedules.module';
     ClientsModule,
     ServicesModule,
     UsersModule,
-    WorkSchedulesModule,
+    forwardRef(() => WorkSchedulesModule),
   ],
   controllers: [AppointmentsController],
   providers: [AppointmentsService],
