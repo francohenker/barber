@@ -7,7 +7,7 @@ Sistema full-stack para gestión de turnos, clientes y promociones con integraci
 | Capa | Tecnología |
 |---|---|
 | Backend | NestJS 11 + TypeScript |
-| Base de datos | PostgreSQL 16 + TypeORM |
+| Base de datos | PostgreSQL 17 + TypeORM |
 | Autenticación | JWT + Google OAuth 2.0 |
 | Bot WhatsApp | Meta WhatsApp Business API |
 | Frontend | Next.js 16 + Tailwind CSS v4 |
@@ -25,7 +25,7 @@ docker-compose up -d
 
 ```bash
 cd backend
-cp .env.example .env   # Completar variables reales
+cp .env.example .env 
 npm install
 npm run migration:run
 npm run start:dev
@@ -35,7 +35,7 @@ npm run start:dev
 
 ```bash
 cd frontend
-cp .env.example .env.local   # Completar variables reales
+cp .env.example .env.local   
 npm install
 npm run dev
 ```
@@ -46,7 +46,6 @@ npm run dev
 |---|---|
 | Frontend | http://localhost:3000 |
 | Backend API | http://localhost:3001 |
-| pgAdmin | http://localhost:5050 |
 
 ## Módulos del Backend
 
