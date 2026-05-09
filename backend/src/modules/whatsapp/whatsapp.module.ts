@@ -13,7 +13,7 @@ import { ServicesModule } from '../services/services.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([WhatsappWebhookLog, WhatsappSession]),
-    WorkSchedulesModule,
+    forwardRef(() => WorkSchedulesModule),
     UsersModule,
     forwardRef(() => AppointmentsModule),
     ClientsModule,

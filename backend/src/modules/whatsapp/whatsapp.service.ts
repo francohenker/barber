@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -42,8 +42,10 @@ export class WhatsappService {
     private readonly logsRepo: Repository<WhatsappWebhookLog>,
     @InjectRepository(WhatsappSession)
     private readonly sessionsRepo: Repository<WhatsappSession>,
+    @Inject(forwardRef(() => WorkSchedulesService))
     private readonly workSchedulesService: WorkSchedulesService,
     private readonly usersService: UsersService,
+    @Inject(forwardRef(() => AppointmentsService))
     private readonly appointmentsService: AppointmentsService,
     private readonly clientsService: ClientsService,
     private readonly servicesService: ServicesService,

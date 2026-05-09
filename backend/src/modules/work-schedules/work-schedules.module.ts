@@ -10,7 +10,7 @@ import { WhatsappModule } from '../whatsapp/whatsapp.module';
   imports: [
     TypeOrmModule.forFeature([WorkSchedule]),
     forwardRef(() => AppointmentsModule),
-    WhatsappModule,
+    forwardRef(() => WhatsappModule),
   ],
   controllers: [WorkSchedulesController],
   providers: [WorkSchedulesService],
