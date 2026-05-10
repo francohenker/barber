@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ClientsModule } from './modules/clients/clients.module';
@@ -11,6 +13,7 @@ import { PromotionsModule } from './modules/promotions/promotions.module';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
 import { WorkSchedulesModule } from './modules/work-schedules/work-schedules.module';
 import { BarbersModule } from './modules/barbers/barbers.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
@@ -33,6 +36,10 @@ import { BarbersModule } from './modules/barbers/barbers.module';
         logging: config.get<string>('NODE_ENV') === 'development',
       }),
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
@@ -43,6 +50,7 @@ import { BarbersModule } from './modules/barbers/barbers.module';
     WhatsappModule,
     WorkSchedulesModule,
     BarbersModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}

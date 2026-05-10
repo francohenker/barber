@@ -14,9 +14,9 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b backdrop-blur-md transition-all duration-300"
-      style={{ 
-        backgroundColor: 'rgba(10, 10, 10, 0.7)', 
-        borderColor: 'var(--color-border)' 
+      style={{
+        backgroundColor: 'rgba(10, 10, 10, 0.7)',
+        borderColor: 'var(--color-border)'
       }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
@@ -36,8 +36,13 @@ export default function Navbar() {
                 BARBER<span className="text-[var(--color-primary)]">ÍA</span>
               </span>
             </Link>
+            <div className="hidden md:flex items-center gap-8 ml-10">
+              <Link href="/products" className="text-sm font-medium transition-colors hover:text-[var(--color-primary)]">
+                Productos
+              </Link>
+            </div>
           </div>
-          
+
           <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
             {user ? (
               <>
@@ -50,7 +55,7 @@ export default function Navbar() {
                     Panel
                   </Link>
                 )}
-                <button onClick={() => logout().then(() => router.replace('/login'))} 
+                <button onClick={() => logout().then(() => router.replace('/login'))}
                   className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium transition-all text-red-400 hover:bg-red-500/10">
                   Salir
                 </button>

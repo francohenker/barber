@@ -12,6 +12,17 @@ export interface User {
 
 export interface Barber extends User {}
 
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface WorkSchedule {
   id: string;
   dayOfWeek: number;
@@ -38,8 +49,10 @@ async function request<T>(
   options: RequestInit = {},
   token?: string,
 ): Promise<T> {
+  const isFormData = options.body instanceof FormData;
+
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((options.headers as Record<string, string>) || {}),
   };
@@ -137,4 +150,15 @@ export const api = {
     request<Barber>(`/barbers/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, token),
   deleteBarber: (id: string, token: string) =>
     request<void>(`/barbers/${id}`, { method: 'DELETE' }, token),
+
+  // Products
+  getProducts: () => request<Product[]>('/products'),
+  getAllProducts: (token: string) => request<Product[]>('/products/all', {}, token),
+  getProduct: (id: string) => request<Product>(`/products/${id}`),
+  createProduct: (data: FormData, token: string) =>
+    request<Product>('/products', { method: 'POST', body: data }, token),
+  updateProduct: (id: string, data: FormData, token: string) =>
+    request<Product>(`/products/${id}`, { method: 'PATCH', body: data }, token),
+  deleteProduct: (id: string, token: string) =>
+    request<void>(`/products/${id}`, { method: 'DELETE' }, token),
 };

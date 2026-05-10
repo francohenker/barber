@@ -13,6 +13,7 @@ const mainNavItems = [
 ];
 
 const moreNavItems = [
+  { href: '/admin/products', label: '🛒 Productos' },
   { href: '/admin/promotions', label: '🏷️ Promociones' },
   { href: '/admin/services', label: '✂️ Servicios' },
   { href: '/admin/schedule', label: '🕐 Horarios' },

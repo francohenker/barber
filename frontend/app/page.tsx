@@ -66,6 +66,16 @@ export default async function HomePage() {
             Ver promociones
           </Link>
 
+          <Link
+            href="/products"
+            className="block w-full py-3 rounded-xl text-center font-medium text-sm mt-3 transition-all"
+            style={{
+              color: '#bc19eb',
+              border: '1px solid #bc19eb',
+            }}
+          >
+            Ver productos
+          </Link>
 
         </div>
       </section>
